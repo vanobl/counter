@@ -34,7 +34,6 @@ class Service(QWidget):
         self.btn_add = self.dialog.findChild(QPushButton, 'btn_add')
         self.btn_changed = self.dialog.findChild(QPushButton, 'btn_changed')
         self.btn_delete = self.dialog.findChild(QPushButton, 'btn_delete')
-
         # назначим подсказки для элементов
         self.btn_add.setToolTip('Добавить продукт (услугу)')
         self.btn_changed.setToolTip('Изменить продукт (услугу)')
@@ -61,22 +60,22 @@ class Service(QWidget):
     # метод отображения окна
     def work_with_service(self, selector):
         query_service = ''
+        self.name_service = ''  # для редактирования названия услуг
         self.win = EditService(selector)
         if selector == 'add':
             self.win.setWindowTitle('Добавление продукта, услуги')
         elif selector == 'edit':
             self.win.setWindowTitle('Редактирование продукта, услуги')
-            name_service = ''
             selected_list = self.list_company.selectedItems()
             for ls in selected_list:
-                name_service = ls.text()
-            query_service = conn.query(ProductService).filter_by(name_service=name_service).first()
+                self.name_service = ls.text()
+            query_service = conn.query(ProductService).filter_by(name_service=self.name_service).first()
             self.win.edit_name.setText(query_service.name_service)
         elif selector == 'dell':
             selected_list = self.list_company.selectedItems()
             for ls in selected_list:
-                name_service = ls.text()
-            query_service = conn.query(ProductService).filter_by(name_service=name_service).first()
+                self.name_service = ls.text()
+            query_service = conn.query(ProductService).filter_by(name_service=self.name_service).first()
             conn.query(ProductService).filter(ProductService.id == query_service.id).delete()
             conn.commit()
         self.win.setWindowModality(Qt.ApplicationModal)
@@ -85,23 +84,20 @@ class Service(QWidget):
         self.win.btn_exit.clicked.connect(self.win.close)
         self.win.show()
 
-    # метод работы с услугами
+    # метод модального окна "Редактирование продукта, услуги"
     def add_upt_dell(self):
         if self.win.action == 'add':
-            print(self.win.action)
             new_service = ProductService(self.win.edit_name.text())
             conn.add(new_service)
             conn.commit()
             self.win.close()
             self.filling_list()
         elif self.win.action == 'edit':
-            conn.query(ProductService).filter(ProductService.id == self.win.label_id.text()).update({'name_servise': self.win.edit_name.text()})
+            conn.query(ProductService).filter(ProductService.name_service == self.name_service).update({'name_service': self.win.edit_name.text()})
             conn.commit()
             self.win.close()
             self.filling_list()
-        elif self.win.action == 'dell':
-            #print(self.list_company.is)
-            pass
+
 
     # метод добавления услуг
     def insert_service(self):
@@ -113,8 +109,8 @@ class Service(QWidget):
 
     # метод удаления услуг
     def dell_service(self):
-        #self.work_with_company('dell')
         service_list = self.list_company.selectedItems()
+        name_service = ''
         for item in service_list:
             name_service = item.text()
         query_service = conn.query(ProductService).filter_by(name_service=name_service).first()
