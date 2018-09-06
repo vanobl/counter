@@ -79,5 +79,21 @@ class BankDocsRev(CBase):
     def __rep__(self):
         return 'Документ: №{}, на сумму {}, коментарий {}'.format(self.number_docs, self.summ_docs, self.text_docs)
 
+# определим класс таблицы товаров и услуг
+class ProductService(CBase):
+    # имя таблицы
+    __tablename__ = 'product_service'
+
+    # поля таблицы
+    id = Column(Integer, primary_key=True)
+    name_service = Column(String, nullable=False)
+
+    def __init__(self, name_service):
+        self.name_service = name_service
+
+
+    def __rep__(self):
+        return 'Наименование продукта (услуга): {}'.format(self.name_service)
+
 #применим изменения
 CBase.metadata.create_all(engine)
