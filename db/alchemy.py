@@ -1,20 +1,23 @@
+import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, create_engine, ForeignKey, DateTime, Float
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, create_engine,\
+    DateTime, Float
 
 import datetime
 
 CBase = declarative_base()
-engine = create_engine('sqlite:///counter.db')
+engine = create_engine(f'sqlite:///{os.path.join("db", "counter.db")}')
 
-#http://sqlitebrowser.org/
+# http://sqlitebrowser.org/
 
-#определим класс таблицы Компаний
+# определим класс таблицы Компаний
+
+
 class Company(CBase):
-    #имя таблицы
+    # имя таблицы
     __tablename__ = 'company'
 
-    #поля таблицы
+    # поля таблицы
     id = Column(Integer, primary_key=True)
     namecompany = Column(String, nullable=False, unique=True)
     inn = Column(String, nullable=False)
@@ -26,9 +29,10 @@ class Company(CBase):
         self.inn = inn
         self.ogrn = ogrn
         self.adress = adress
-    
-    def __rep__(self):
-        return 'Company: {}, INN: {}, OGRN: {}, ADDRESS: {}'.format(self.namecompany, self.inn, self.ogrn, self.adress)
+
+    def __repr__(self):
+        return 'Company: {}, INN: {}, OGRN: {}, ADDRESS: {}'.format(
+            self.namecompany, self.inn, self.ogrn, self.adress)
 
 #определим класс таблицы контрагентов
 class Counterparties(CBase):
@@ -46,7 +50,8 @@ class Counterparties(CBase):
     ks_c = Column(String)
     rs_c = Column(String)
 
-    def __init__(self, name_c, inn_c, ogrn_c, adress_c = '', bank_c = '', bik_c = '', ks_c = '', rs_c = ''):
+    def __init__(self, name_c, inn_c, ogrn_c, adress_c = '',
+                 bank_c = '', bik_c = '', ks_c = '', rs_c = ''):
         self.name_c = name_c
         self.inn_c = inn_c
         self.ogrn_c = ogrn_c
@@ -56,8 +61,11 @@ class Counterparties(CBase):
         self.ks_c = ks_c
         self.rs_c = rs_c
     
-    def __rep__(self):
-        return 'Контрагент: {}, INN: {}, OGRN: {}, ADDR: {}, BANK: {}, BIK: {}, KS: {}, RS: {}'.format(self.name_c, self.inn_c, self.ogrn_c, self.adress_c, self.bank_c, self.bik_c, self.ks_c, self.rs_c)
+    def __repr__(self):
+        return 'Контрагент: {}, INN: {}, OGRN: {}, ADDR: {},\
+        BANK: {}, BIK: {}, KS: {}, RS: {}'.format(
+            self.name_c, self.inn_c, self.ogrn_c, self.adress_c,
+            self.bank_c, self.bik_c, self.ks_c, self.rs_c)
 
 #определим класс таблицы документов поступлений расходов
 class BankDocsRev(CBase):
@@ -76,8 +84,9 @@ class BankDocsRev(CBase):
         self.summ_docs = summ_docs
         self.text_docs = text_docs
     
-    def __rep__(self):
-        return 'Документ: №{}, на сумму {}, коментарий {}'.format(self.number_docs, self.summ_docs, self.text_docs)
+    def __repr__(self):
+        return 'Документ: №{}, на сумму {}, коментарий {}'.format(
+            self.number_docs, self.summ_docs, self.text_docs)
 
 # определим класс таблицы товаров и услуг
 class ProductService(CBase):
@@ -92,8 +101,8 @@ class ProductService(CBase):
         self.name_service = name_service
 
 
-    def __rep__(self):
+    def __repr__(self):
         return 'Наименование продукта (услуга): {}'.format(self.name_service)
 
-#применим изменения
+# применим изменения
 CBase.metadata.create_all(engine)
