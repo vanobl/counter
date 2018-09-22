@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, create_engine,\
     DateTime, Float
 
+
 import datetime
 
 CBase = declarative_base()
@@ -75,18 +76,21 @@ class BankDocsRev(CBase):
     #поля таблицы
     id = Column(Integer, primary_key=True)
     number_docs = Column(Integer, nullable=False)
-    date_docs = Column(DateTime, default=datetime.datetime.now())
+    date_docs = Column(DateTime, nullable=False)
     summ_docs = Column(Float, nullable=False)
-    text_docs = Column(String)
+    action_docs = Column(String, nullable=False)
+    comment_docs = Column(String)
 
-    def __init__(self, number_docs, summ_docs, text_docs=''):
+    def __init__(self, number_docs, date_docs, summ_docs, action_docs, comment_docs):
         self.number_docs = number_docs
+        self.date_docs = date_docs
         self.summ_docs = summ_docs
-        self.text_docs = text_docs
+        self.action_docs = action_docs
+        self.comment_docs = comment_docs
     
     def __repr__(self):
-        return 'Документ: №{}, на сумму {}, коментарий {}'.format(
-            self.number_docs, self.summ_docs, self.text_docs)
+        return 'Документ: №{0}, {3} от {1}, на сумму {2}, коментарий {4}'.format(
+            self.number_docs, self.date_docs, self.summ_docs, self.action_docs, self.comment_docs)
 
 # определим класс таблицы товаров и услуг
 class ProductService(CBase):
@@ -103,6 +107,13 @@ class ProductService(CBase):
 
     def __repr__(self):
         return 'Наименование продукта (услуга): {}'.format(self.name_service)
+
+# конвертер для дата полученных из виджетов
+def str_to_date(datestr="", format="%d.%m.%Y"):
+    from datetime import datetime
+    if not datestr:
+        return datetime.today().date()
+    return datetime.strptime(datestr, format).date()
 
 # применим изменения
 CBase.metadata.create_all(engine)
