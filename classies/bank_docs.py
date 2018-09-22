@@ -71,9 +71,10 @@ class BankDocs(QWidget):
         for elem in query_list:
             data_list.append(elem.date_docs.strftime("%d.%m.%Y"))
         data_list.sort(key=lambda d: datetime.strptime(d, '%d.%m.%Y'))
-        first = data_list[0]
-        last = data_list[-1]
-        self.label.setText(f'C {first} по {last}')
+        if data_list:
+            first = data_list[0]
+            last = data_list[-1]
+            self.label.setText(f'C {first} по {last}')
 
     # метод добавление данных в новую строку
     def set_data_in_new_row(self, data: list):
