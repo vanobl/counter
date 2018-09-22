@@ -3,6 +3,7 @@ from classies.connect import Connect
 from classies.companys import Companys
 from classies.counterparties import Counterpartie
 from classies.service import Service
+from classies.bank_docs import BankDocs
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -33,6 +34,7 @@ class Counter(QObject):
         self.select_company.triggered.connect(self.read_company)
         self.select_counterparties.triggered.connect(self.read_counterparties)
         self.select_service.triggered.connect(self.read_service)
+        self.journal_income_consumption.triggered.connect(self.read_bank_docs)
         self.window.show()
 
     # метод открытия окна с компаниями
@@ -55,6 +57,14 @@ class Counter(QObject):
     def read_service(self):
         self.wincom = Service()
         self.wincom.setWindowTitle('Продукты, услуги')
+        self.wincom.setWindowModality(Qt.ApplicationModal)
+        self.wincom.setWindowFlags(Qt.Window)
+        self.wincom.show()
+
+    # метод открытия окна выставленые счета
+    def read_bank_docs(self):
+        self.wincom = BankDocs()
+        self.wincom.setWindowTitle('Выписки банка')
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
