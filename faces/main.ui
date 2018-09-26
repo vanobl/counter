@@ -42,6 +42,7 @@
      <string>Журналы</string>
     </property>
     <addaction name="journal_income_consumption"/>
+    <addaction name="journal_invoicing"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -77,6 +78,11 @@
   <action name="select_service">
    <property name="text">
     <string>Товары, услуги</string>
+   </property>
+  </action>
+  <action name="journal_invoicing">
+   <property name="text">
+    <string>Журнал высталенные счета</string>
    </property>
   </action>
  </widget>
