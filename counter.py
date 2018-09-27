@@ -7,6 +7,7 @@ from classies.service import Service
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QPushButton, QListView, QLineEdit, QTextEdit, QListWidget, QLabel, QAction
 from PySide2.QtCore import QFile, QObject, QStringListModel, QObject, Qt
+from PySide2.QtWidgets import QMainWindow
 from PySide2 import QtGui
 
 #импортируем таблицы
@@ -14,7 +15,7 @@ from db.alchemy import Company
 #создадим сессию
 conn = Connect().get_session()
 
-class Counter(QObject):
+class Counter(QMainWindow):
     def __init__(self, uifile, parent=None):
         super(Counter, self).__init__(parent)
         self.ui_file = QFile(uifile)
