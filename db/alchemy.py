@@ -1,99 +1,148 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, create_engine, ForeignKey, DateTime, Float
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float,\
+    Boolean, create_engine, relationship
 
-import datetime
+Base = declarative_base()
+engine = create_engine(f'sqlite:///{os.path.join("db", "counter.db")}')
 
-CBase = declarative_base()
-engine = create_engine('sqlite:///counter.db')
 
-#http://sqlitebrowser.org/
+class Company(Base):
+    '''
+    таблица с основными данными о компании
+    флаг owner - true: базовый пользователь
+    false: конрагент
+    можно учесть в контроллере возможность выбирать базового пользователя
+    при запуске приложения, тогда можно будет использовать одну базу для
+    нескольких компаний
+    '''
 
-#определим класс таблицы Компаний
-class Company(CBase):
-    #имя таблицы
     __tablename__ = 'company'
-
-    #поля таблицы
     id = Column(Integer, primary_key=True)
-    namecompany = Column(String, nullable=False, unique=True)
-    inn = Column(String, nullable=False)
-    ogrn = Column(String, nullable=False)
-    adress = Column(String, nullable=False)
+    name = Column(String(64), nullable=False)
+    inn = Column(Integer)
+    ogrn = Column(Integer)
+    address = Column(String(250))
+    owner = Column(Boolean)
 
-    def __init__(self, namecompany, inn, ogrn, adress):
-        self.namecompany = namecompany
+    def __init__(self, name, inn, ogrn, address):
+        self.name = name
         self.inn = inn
         self.ogrn = ogrn
-        self.adress = adress
-    
-    def __rep__(self):
-        return 'Company: {}, INN: {}, OGRN: {}, ADDRESS: {}'.format(self.namecompany, self.inn, self.ogrn, self.adress)
+        self.address = address
 
-#определим класс таблицы контрагентов
-class Counterparties(CBase):
-    #имя таблицы
-    __tablename__ = 'counterparties'
 
-    #поля таблицы
+class CompanyAccount(Base):
+    # таблица с реквизитами компании
+
+    __tablename__ = 'companyaccount'
     id = Column(Integer, primary_key=True)
-    name_c = Column(String, nullable=False, unique=True)
-    inn_c = Column(String, nullable=False, unique=True)
-    ogrn_c = Column(String, nullable=False, unique=True)
-    adress_c = Column(String, nullable=False)
-    bank_c = Column(String)
-    bik_c = Column(String)
-    ks_c = Column(String)
-    rs_c = Column(String)
+    id_company = Column(Integer, ForeignKey('company.id'))
+    id_bank = Column(Integer, ForeignKey('banks.id'))
+    rs = Column(Integer)
 
-    def __init__(self, name_c, inn_c, ogrn_c, adress_c = '', bank_c = '', bik_c = '', ks_c = '', rs_c = ''):
-        self.name_c = name_c
-        self.inn_c = inn_c
-        self.ogrn_c = ogrn_c
-        self.adress_c = adress_c
-        self.bank_c = bank_c
-        self.bik_c = bik_c
-        self.ks_c = ks_c
-        self.rs_c = rs_c
-    
-    def __rep__(self):
-        return 'Контрагент: {}, INN: {}, OGRN: {}, ADDR: {}, BANK: {}, BIK: {}, KS: {}, RS: {}'.format(self.name_c, self.inn_c, self.ogrn_c, self.adress_c, self.bank_c, self.bik_c, self.ks_c, self.rs_c)
+    company = relationship('Company', backref='company')
+    bank = relationship('Banks', backref='banks')
 
-#определим класс таблицы документов поступлений расходов
-class BankDocsRev(CBase):
-    #имя таблицы
-    __tablename__ = 'bank_docs_rev'
+    def __init__(self, id_company, id_bank, rs):
+        self.id_company = id_company
+        self.id_bank = id_bank
+        self.rs = rs
 
-    #поля таблицы
+
+class Banks(Base):
+    # таблица определяющая все банки
+
+    __tablename__ = 'banks'
     id = Column(Integer, primary_key=True)
-    number_docs = Column(Integer, nullable=False)
-    date_docs = Column(DateTime, default=datetime.datetime.now())
-    summ_docs = Column(Float, nullable=False)
-    text_docs = Column(String)
+    bank_name = Column(String(64), nullable=False)
+    bik = Column(Integer)
+    ks = Column(Integer)
+    address_b = Column(String(250))
 
-    def __init__(self, number_docs, summ_docs, text_docs=''):
-        self.number_docs = number_docs
-        self.summ_docs = summ_docs
-        self.text_docs = text_docs
-    
-    def __rep__(self):
-        return 'Документ: №{}, на сумму {}, коментарий {}'.format(self.number_docs, self.summ_docs, self.text_docs)
+    def __init__(self, bank_name, bik, ks, address_b):
+        self.bank_name = bank_name
+        self.bik = bik
+        self.ks = ks
+        self.address_b = address_b
 
-# определим класс таблицы товаров и услуг
-class ProductService(CBase):
-    # имя таблицы
-    __tablename__ = 'product_service'
 
-    # поля таблицы
+class Products(Base):
+
+    __tablename__ = 'products'
     id = Column(Integer, primary_key=True)
-    name_service = Column(String, nullable=False)
+    description = Column(String(200), nullable=False)
+    price = Column(Float)
 
-    def __init__(self, name_service):
-        self.name_service = name_service
+    def __init__(self, description, price=None):
+        self.description = description
+        self.price = price
 
 
-    def __rep__(self):
-        return 'Наименование продукта (услуга): {}'.format(self.name_service)
+class Documents(Base):
 
-#применим изменения
-CBase.metadata.create_all(engine)
+    __tablename__ = 'documents'
+    doc_number = Column(String(32))
+    product = Column(Integer, ForeignKey('products.id'))
+    qtty = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+
+    def __init__(self, doc_number, product, qtty, price):
+        self.doc_number = doc_number
+        self.product = product
+        self.qtty = qtty
+        self.price = price
+
+
+class IncommingDoc(Base):
+    __tablename__ = 'incomming_doc'
+    id = Column(Integer, primary_key=True)
+    owner = Column(Integer, ForeignKey('company.id'))
+    counterparty = Column(Integer, ForeignKey('company.id'))
+    doc_number = Column(String, ForeignKey('documents.doc_number'))
+    doc_type = Column(Integer, ForeignKey('doc_type.id'))
+    date = Column(Date, nullable=False)
+    number_doc_close = Column(String, ForeignKey('outcomming_doc.id'))
+
+    def __init__(self, owner, counterparty, doc_number,
+                 doc_type, date, number_doc_close):
+        self.owner = owner
+        self.counterparty = counterparty
+        self.doc_number = doc_number
+        self.doc_type = doc_type
+        self.date = date
+        self.number_doc_close = number_doc_close
+
+
+class OutcommingDoc(Base):
+    __tablename__ = 'outcomming_doc'
+    id = Column(Integer, primary_key=True)
+    owner = Column(Integer, ForeignKey('company.id'))
+    counterparty = Column(Integer, ForeignKey('company.id'))
+    doc_number = Column(String, ForeignKey('documents.doc_number'))
+    doc_type = Column(Integer, ForeignKey('doc_type.id'))
+    date = Column(Date, nullable=False)
+    number_doc_close = Column(String, ForeignKey('incomming_doc.id'))
+
+    def __init__(self, owner, counterparty, doc_number,
+                 doc_type, date, number_doc_close):
+        self.owner = owner
+        self.counterparty = counterparty
+        self.doc_number = doc_number
+        self.doc_type = doc_type
+        self.date = date
+        self.number_doc_close = number_doc_close
+
+
+class DocType(Base):
+
+    __tablename__ = 'doc_type'
+    id = Column(Integer, primary_key=True)
+    description = Column(String, nullable=False)
+
+    def __init__(self, description):
+        self.description = description
+
