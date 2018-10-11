@@ -36,6 +36,7 @@ class EditInvoicing(QWidget):
         self.btn_add = self.dialog.findChild(QPushButton, 'btn_add')
         self.btn_changed = self.dialog.findChild(QPushButton, 'btn_changed')
         self.btn_delete = self.dialog.findChild(QPushButton, 'btn_delete')
+
         # назначим подсказки для элементов
         self.btn_save.setToolTip('Сохранить счёт')
         self.btn_add.setToolTip('Добавить услугу, товар')
@@ -49,8 +50,8 @@ class EditInvoicing(QWidget):
         self.table_service.setColumnWidth(3, 100)  # сумма
 
         # задаём специальные размеров колонок итоговой таблицы
-        self.table_total.setColumnWidth(0, 529)  # наименование услуг
-        self.table_total.setColumnWidth(1, 100)  # количество
+        self.table_total.setColumnWidth(0, 549)  # наименование услуг
+        self.table_total.setColumnWidth(1, 80)  # количество
 
         # добавляем значения по умолчанию: текущую дату
         self.date_edit.setDate(QDate.currentDate())
@@ -87,8 +88,8 @@ class EditInvoicing(QWidget):
             item = QtWidgets.QTableWidgetItem(str(data[i]))
             self.table_service.setItem(id_row, i, item)
 
+    # Возвращает список значений строки таблицы
     def get_value_row(self, current_row):
-        """ Возвращает список значений строки таблицы"""
         value_cells = []
         if self.table_service.isItemSelected(current_row):
             index_row = self.table_service.row(current_row)
@@ -96,6 +97,20 @@ class EditInvoicing(QWidget):
             for column in range(0, columns):
                 value_cells.append(self.table_service.item(index_row, column).text())
         return value_cells
+
+    # мктод суммирования стоимости услуг
+    def total_summ(self):
+        # собираем значения последних ячеек по строкам
+        value_cells = []
+        columns = self.table_service.columnCount()
+        rows = self.table_service.rowCount()
+        for row in range(0, rows):
+            print(row)
+            value = self.table_service.item(row, columns-1).text()
+            value_cells.append(int(value))
+        summ = sum(value_cells)
+        # вставляем сумму
+        self.table_total.horizontalHeaderItem(1).setText(str(summ))
 
     # метод заполнения таблицы
     def filling_table(self, row):
@@ -156,64 +171,20 @@ class EditInvoicing(QWidget):
 
     # метод модального окна "Дорбавления услуг"
     def add_upt_dell(self):
-        if self.win.action == 'add':
+        if self.win.action == 'add' or self.win.action == 'edit':
             # получаем данные из дочернего окна:
             new_service = [self.win.cmbox_service.currentText(),
                            self.win.amount_service.text(),
                            self.win.price_service.text(),
                            self.win.summ_service.text()]
             # вставляем данные а таблицу
-            self.set_data_in_new_row(new_service)
-            print('попали')
+            if self.win.action == 'edit':
+                # вставляем данные в туже строку
+                self.set_data_in_current_row(new_service)
+            else:
+                self.set_data_in_new_row(new_service)
             self.win.close()
-        elif self.win.action == 'edit':
-            # получаем данные из дочернего окна:
-            edit_service = [self.win.cmbox_service.currentText(),
-                           self.win.amount_service.text(),
-                           self.win.price_service.text(),
-                           self.win.summ_service.text()]
-            # вставляем данные в туже строку
-            self.set_data_in_current_row(edit_service)
-
-
-
-            # # сохраняем данных в базу
-            # new_list = 1
-            # name_company = self.cmbox_company.currentText()
-            # id_company = conn.query(Counterparties).filter(Counterparties.name_c==name_company).first().id
-            # d = self.date_edit.text()
-            # summ = 300
-            # comment = 'коммент'
-            #
-            # name_service = self.win.cmbox_service.currentText()
-            # id_service = conn.query(ProductService).filter(ProductService.name_service == name_service).first().id
-            #
-            # amount_service = self.win.amount_service.text()
-            # price_service = self.win.price_service.text()
-            #
-            # new_doc = Invoice(invoice_list=new_list,
-            #                   id_company=id_company,
-            #                   date_invoice=str_to_date(d),
-            #                   summ_invoice=summ,
-            #                   comment_invoice=comment,
-            #                   id_service=id_service,
-            #                   amount_service=amount_service,
-            #                   price_service=price_service)
-            # conn.add(new_doc)
-            # conn.commit()
-            # self.win.close()
-            # self.filling_table()
-
-
-            # conn.query(Invoice).filter(
-            #     Invoice.id == self.id_selected_row
-            # ).update({'number_docs': self.win.number_doc_edit.text(),
-            #     'date_docs': str_to_date(self.win.date_edit.text()),
-            #     'summ_docs': float(self.win.summ_edit.text()),
-            #     'action_docs': self.win.cmbox_action.currentText(),
-            #     'comment_docs': self.win.comment_edit.toPlainText()})
-            #conn.commit()
-        self.win.close()
+            self.total_summ()
 
         # self.change_period()
 
