@@ -18,7 +18,7 @@ over = Communicate()
 
 
 class EditInvoicing(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, action, parent=None):
         super(EditInvoicing, self).__init__(parent)
         self.path = os.path.join('faces', 'edit_invoicing.ui')
         self.ui_file = QFile(self.path)
@@ -27,9 +27,12 @@ class EditInvoicing(QWidget):
         self.dialog = self.loader.load(self.ui_file, self)
         self.ui_file.close()
 
+        self.action = action
+
         # определим элементы управления
         self.date_edit = self.dialog.findChild(QDateEdit, 'date_edit')
         self.table_service = self.dialog.findChild(QTableWidget, 'table_service')
+        self.comment_edit = self.dialog.findChild(QLineEdit, 'comment_edit')
         self.table_total = self.dialog.findChild(QTableWidget, 'table_total')
         self.cmbox_company = self.dialog.findChild(QComboBox, 'cmbox_company')
         self.btn_save = self.dialog.findChild(QPushButton, 'btn_save')
@@ -66,6 +69,7 @@ class EditInvoicing(QWidget):
         self.btn_delete.setToolTip('Удалить')
 
         # назначим действия для объектов
+        self.btn_save.clicked.connect(self.save_service)
         self.btn_add.clicked.connect(self.insert_service)
         self.btn_changed.clicked.connect(self.edit_service)
         self.btn_delete.clicked.connect(self.dell_service)
@@ -105,7 +109,6 @@ class EditInvoicing(QWidget):
         columns = self.table_service.columnCount()
         rows = self.table_service.rowCount()
         for row in range(0, rows):
-            print(row)
             value = self.table_service.item(row, columns-1).text()
             value_cells.append(int(value))
         summ = sum(value_cells)
@@ -134,14 +137,14 @@ class EditInvoicing(QWidget):
             # вставляем строчку в таблицу
         self.set_data_in_new_row(row)
             # self.date_edit.setDate()
-        # self.change_period()
+
 
     # метод отображения окна
     def work_with_service(self, selector):
         self.win = ServiceForInvoice(selector)
         self.id_selected_row = ''  # ID выделенной строки
         if selector == 'add':
-            self.win.setWindowTitle('Добавить выписку')
+            self.win.setWindowTitle('Добавить услугу')
             self.start_win()
         else:
             # получаем выделенную строку
@@ -156,10 +159,10 @@ class EditInvoicing(QWidget):
                 for i in range(self.win.cmbox_service.count()):
                     if self.win.cmbox_service.itemText(i) == value_cells[0]:
                         self.win.cmbox_service.setCurrentIndex(i)
-
                 self.win.amount_service.setText(value_cells[1])  # количество
-                self.win.price_service.setText(value_cells[2])  # количество
+                self.win.price_service.setText(value_cells[2])  # стоимость
                 self.start_win()
+        self.total_summ()
 
     # запуск окна
     def start_win(self):
@@ -186,7 +189,9 @@ class EditInvoicing(QWidget):
             self.win.close()
             self.total_summ()
 
-        # self.change_period()
+    # сохранение услуг
+    def save_service(self):
+        self.action = 'save'
 
     # метод добавления услуг
     def insert_service(self):
