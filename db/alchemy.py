@@ -120,11 +120,11 @@ class Invoice(CBase):
     summ_invoice = Column(Float, nullable=False)
     comment_invoice = Column(String, nullable=True)
 
-    def __init__(self, id_company, date_invoice, summ_invoice, comment_invoice):
+    def __init__(self, id_company, date_invoice, comment_invoice, summ_invoice):
         self.id_company = id_company
         self.date_invoice = date_invoice
-        self.summ_invoice = summ_invoice
         self.comment_invoice = comment_invoice
+        self.summ_invoice = summ_invoice
 
 class ServiceInvoice(CBase):
     # имя таблицы
@@ -133,12 +133,11 @@ class ServiceInvoice(CBase):
     # поля таблицы счетов
     id = Column(Integer, primary_key=True)
     id_invoice = Column(Integer, ForeignKey('invoice.id'), nullable=False)  # группировка услуг в сёте
-    id_company = Column(Integer, ForeignKey('counterparties.id'), nullable=False)
     id_service = Column(Integer, ForeignKey('product_service.id'), nullable=True)
     amount_service = Column(Integer, nullable=True)
     price_service = Column(Float, nullable=True)
 
-    def __init__(self, id_invoice, id_service, amount_service, price_service):
+    def __init__(self, id_invoice,id_service, amount_service, price_service):
         self.id_invoice = id_invoice
         self.id_service = id_service
         self.amount_service = amount_service
