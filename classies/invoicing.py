@@ -13,7 +13,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from classies.edit_invoicing import EditInvoicing
 
 # импортируем таблицы
-from db.alchemy import BankDocsRev, str_to_date
+from db.alchemy import Invoice, str_to_date, Counterparties
 
 # создадим сессию
 conn = Connect().get_session()
@@ -62,10 +62,10 @@ class Invoicing(QWidget):
 
     # метод формирование надписи
     def change_period(self):
-        query_list = conn.query(BankDocsRev).filter(BankDocsRev.date_docs).all()
+        query_list = conn.query(Invoice).filter(Invoice.date_invoice).all()
         data_list = []
         for elem in query_list:
-            data_list.append(elem.date_docs.strftime("%d.%m.%Y"))
+            data_list.append(elem.date_invoice.strftime("%d.%m.%Y"))
         data_list.sort(key=lambda d: datetime.strptime(d, '%d.%m.%Y'))
         if data_list:
             first = data_list[0]
@@ -83,17 +83,18 @@ class Invoicing(QWidget):
 
     # метод заполнения таблицы
     def filling_table(self):
-        self.table_bill.setRowCount(int(0)) # удаляем строки
-        items = conn.query(BankDocsRev).all()
+        self.table_bill.setRowCount(int(0))  # удаляем строки
+        items = conn.query(Invoice).all()
         self.id = []
         for item in items:
             # пересохраняем объект таблицы в строчку
             row = []
             self.id.append(item.id)
-            row.append(item.date_docs.strftime("%d.%m.%Y"))
-            row.append(item.summ_docs)
-            row.append(item.action_docs)
-            row.append(item.comment_docs)
+            row.append(item.date_invoice.strftime("%d.%m.%Y"))
+            row.append(item.summ_invoice)
+            name_company = conn.query(Counterparties).filter(Counterparties.id==item.id_company).first().name_c
+            row.append(name_company)
+            row.append(item.comment_invoice)
             # вставляем строчку в таблицу
             self.set_data_in_new_row(row)
         self.change_period()
@@ -112,7 +113,7 @@ class Invoicing(QWidget):
     def work_with_service(self, selector):
         self.win = EditInvoicing(selector)
         self.id_selected_row = ''  # ID выделенной строки
-        if selector == 'add':
+        if selector == 'save':
             self.win.setWindowTitle('Добавить выписку')
             self.start_win()
         else:
@@ -123,55 +124,60 @@ class Invoicing(QWidget):
             index_row = self.table_bill.row(selected_row)
             self.id_selected_row = self.id[index_row]
             # формируем запрос в таблицу
-            result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row)
+            result = conn.query(Invoice).filter(Invoice.id == self.id_selected_row)
             if selector == 'dell':
                 result.delete()
                 conn.commit()
                 self.filling_table()
-            elif selector == 'edit':
-                nmbr_doc = result.one().number_docs
-                # вставляем исходные значения
-                self.win.number_doc_edit.setText(str(nmbr_doc))  #  номер
-                d = str_to_date(value_cells[0])
-                self.win.date_edit.setDate(d)  # дата
-                self.win.summ_edit.setText(value_cells[1])  # сумма
-                # приход / расход
-                for i in range(self.win.cmbox_action.count()):
-                    if self.win.cmbox_action.itemText(i) == value_cells[2]:
-                        self.win.cmbox_action.setCurrentIndex(i)
-                self.win.comment_edit.setText(value_cells[3])  # комментарий
-                self.start_win()
+            # elif selector == 'edit':
+            #     nmbr_doc = result.one().number_docs
+            #     # вставляем исходные значения
+            #     self.win.number_doc_edit.setText(str(nmbr_doc))  # номер
+            #     d = str_to_date(value_cells[0])
+            #     self.win.date_edit.setDate(d)  # дата
+            #     self.win.summ_edit.setText(value_cells[1])  # сумма
+            #     # приход / расход
+            #     for i in range(self.win.cmbox_action.count()):
+            #         if self.win.cmbox_action.itemText(i) == value_cells[2]:
+            #             self.win.cmbox_action.setCurrentIndex(i)
+            #     self.win.comment_edit.setText(value_cells[3])  # комментарий
+            #     self.start_win()
 
     # запуск окна
     def start_win(self):
+        self.win = EditInvoicing()
         self.win.setWindowModality(Qt.ApplicationModal)
         self.win.setWindowFlags(Qt.Window)
-        self.win.btn_add.clicked.connect(self.add_upt_dell)
-        self.win.btn_delete.clicked.connect(self.win.close)
         self.win.show()
 
-    # метод модального окна "Редактирование банковские выписки"
+    def get_company_id(self):
+        current_name = self.win.cmbox_company.currentText()
+        result = conn.query(Counterparties).filter(Counterparties.name_c == current_name).first()
+        return result.id
+
+    # метод модального окна "Добавить счёт"
     def add_upt_dell(self):
         if self.win.action == 'add':
-            d = self.win.date_edit.text()
-            self.period.append(d)
-            new_doc = BankDocsRev(
-                int(self.win.number_doc_edit.text()),
-                str_to_date(d),
-                int(self.win.summ_edit.text()),
-                self.win.cmbox_action.currentText(),
-                self.win.comment_edit.toPlainText())
-            conn.add(new_doc)
-            conn.commit()
+            # d = self.win.date_edit.text()
+            # self.period.append(d)
+            # new_doc = Invoice(id_company=1,date_invoice=1,summ_invoice=1,comment_invoice=1)
+            #
+            #     int(self.win.number_doc_edit.text()),
+            #     str_to_date(d),
+            #     int(self.win.summ_edit.text()),
+            #     self.win.cmbox_action.currentText(),
+            #     self.win.comment_edit.toPlainText())
+            # conn.add(new_doc)
+            # conn.commit()
             self.win.close()
         elif self.win.action == 'edit':
-            conn.query(BankDocsRev).filter(
-                BankDocsRev.id == self.id_selected_row
+            conn.query(Invoice).filter(
+                Invoice.id == self.id_selected_row
             ).update({'number_docs': self.win.number_doc_edit.text(),
-                'date_docs': str_to_date(self.win.date_edit.text()),
-                'summ_docs': float(self.win.summ_edit.text()),
-                'action_docs': self.win.cmbox_action.currentText(),
-                'comment_docs': self.win.comment_edit.toPlainText()})
+                      'date_docs': str_to_date(self.win.date_edit.text()),
+                      'summ_docs': float(self.win.summ_edit.text()),
+                      'action_docs': self.win.cmbox_action.currentText(),
+                      'comment_docs': self.win.comment_edit.toPlainText()})
             conn.commit()
         self.win.close()
         self.filling_table()
@@ -179,7 +185,7 @@ class Invoicing(QWidget):
 
     # метод добавления услуг
     def insert_service(self):
-        self.work_with_service('add')
+        self.start_win()
 
     # метод редактирования услуг
     def edit_service(self):
