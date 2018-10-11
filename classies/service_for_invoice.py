@@ -45,7 +45,13 @@ class ServiceForInvoice(QWidget):
             for elem in result:
                 self.cmbox_service.addItem(str(elem.name_service))
 
+        # назначаем события
+        self.amount_service.textChanged.connect(self.change_summ)
+        self.price_service.textChanged.connect(self.change_summ)
 
-
-
-
+    def change_summ(self):
+        amount = self.amount_service.text()
+        price = self.price_service.text()
+        if amount and price:
+            summ = int(amount) * int(price)
+            self.summ_service.setText(str(summ))
