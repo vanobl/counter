@@ -87,7 +87,7 @@ class BankDocs(QWidget):
 
     # метод заполнения таблицы
     def filling_table(self):
-        self.table_bill.setRowCount(int(0)) # удаляем строки
+        self.table_bill.setRowCount(int(0))  # удаляем строки
         items = conn.query(BankDocsRev).all()
         self.id = []
         for item in items:
@@ -102,8 +102,8 @@ class BankDocs(QWidget):
             self.set_data_in_new_row(row)
         self.change_period()
 
+    # Возвращает список значений строки таблицы
     def get_value_row(self, current_row):
-        """ Возвращает список значений строки таблицы"""
         value_cells = [] 
         if self.table_bill.isItemSelected(current_row):
             index_row = self.table_bill.row(current_row)
@@ -135,7 +135,7 @@ class BankDocs(QWidget):
             elif selector == 'edit':
                 nmbr_doc = result.one().number_docs
                 # вставляем исходные значения
-                self.win.number_doc_edit.setText(str(nmbr_doc))  #  номер 
+                self.win.number_doc_edit.setText(str(nmbr_doc))  # номер
                 d = str_to_date(value_cells[0])
                 self.win.date_edit.setDate(d)  # дата
                 self.win.summ_edit.setText(value_cells[1])  # сумма
@@ -160,11 +160,11 @@ class BankDocs(QWidget):
             d = self.win.date_edit.text()
             self.period.append(d)
             new_doc = BankDocsRev(
-                int(self.win.number_doc_edit.text()),
-                str_to_date(d),
-                int(self.win.summ_edit.text()),
-                self.win.cmbox_action.currentText(),
-                self.win.comment_edit.toPlainText())
+                number_docs=int(self.win.number_doc_edit.text()),
+                date_docs=str_to_date(d),
+                summ_docs=int(self.win.summ_edit.text()),
+                action_docs=self.win.cmbox_action.currentText(),
+                comment_docs=self.win.comment_edit.toPlainText())
             conn.add(new_doc)
             conn.commit()
             self.win.close()
