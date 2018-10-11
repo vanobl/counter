@@ -1,7 +1,7 @@
 import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, create_engine,\
-    DateTime, Float
+    Date, Float, ForeignKey
 
 
 import datetime
@@ -76,7 +76,7 @@ class BankDocsRev(CBase):
     #поля таблицы
     id = Column(Integer, primary_key=True)
     number_docs = Column(Integer, nullable=False)
-    date_docs = Column(DateTime, nullable=False)
+    date_docs = Column(Date, nullable=False)
     summ_docs = Column(Float, nullable=False)
     action_docs = Column(String, nullable=False)
     comment_docs = Column(String)
@@ -107,6 +107,42 @@ class ProductService(CBase):
 
     def __repr__(self):
         return 'Наименование продукта (услуга): {}'.format(self.name_service)
+
+
+class Invoice(CBase):
+    # имя таблицы
+    __tablename__ = 'invoice'
+
+    # поля таблицы счетов
+    id = Column(Integer, primary_key=True) 
+    id_company = Column(Integer, ForeignKey('counterparties.id'), nullable=False)
+    date_invoice = Column(Date, nullable=False)
+    summ_invoice = Column(Float, nullable=False)
+    comment_invoice = Column(String, nullable=True)
+
+    def __init__(self, id_company, date_invoice, summ_invoice, comment_invoice):
+        self.id_company = id_company
+        self.date_invoice = date_invoice
+        self.summ_invoice = summ_invoice
+        self.comment_invoice = comment_invoice
+
+class ServiceInvoice(CBase):
+    # имя таблицы
+    __tablename__ = 'service_invoice'
+
+    # поля таблицы счетов
+    id = Column(Integer, primary_key=True)
+    id_invoice = Column(Integer, ForeignKey('invoice.id'), nullable=False)  # группировка услуг в сёте
+    id_company = Column(Integer, ForeignKey('counterparties.id'), nullable=False)
+    id_service = Column(Integer, ForeignKey('product_service.id'), nullable=True)
+    amount_service = Column(Integer, nullable=True)
+    price_service = Column(Float, nullable=True)
+
+    def __init__(self, id_invoice, id_service, amount_service, price_service):
+        self.id_invoice = id_invoice
+        self.id_service = id_service
+        self.amount_service = amount_service
+        self.price_service = price_service
 
 # конвертер для дата полученных из виджетов
 def str_to_date(datestr="", format="%d.%m.%Y"):
