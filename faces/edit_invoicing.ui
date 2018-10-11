@@ -250,7 +250,7 @@
        </attribute>
        <column>
         <property name="text">
-         <string>Итого</string>
+         <string>Итого по счёту</string>
         </property>
         <property name="textAlignment">
          <set>AlignTrailing|AlignVCenter</set>
