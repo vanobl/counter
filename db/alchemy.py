@@ -137,7 +137,7 @@ class ServiceInvoice(CBase):
     amount_service = Column(Integer, nullable=True)
     price_service = Column(Float, nullable=True)
 
-    def __init__(self, id_invoice,id_service, amount_service, price_service):
+    def __init__(self, id_invoice, id_service, amount_service, price_service):
         self.id_invoice = id_invoice
         self.id_service = id_service
         self.amount_service = amount_service
