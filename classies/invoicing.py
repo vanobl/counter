@@ -84,10 +84,8 @@ class Invoicing(QWidget):
     # метод добавление данных в новую строку в окне edit_invoicing
     def set_data_table_service(self, data: list):
         rows = self.win.table_service.rowCount()
-        print(rows)
         self.win.table_service.setRowCount(int(rows + 1))
         columns = self.win.table_service.columnCount()
-        print(columns)
         for i in range(0, columns):
             item = QtWidgets.QTableWidgetItem(str(data[i]))
             self.win.table_service.setItem(rows, i, item)
@@ -104,7 +102,7 @@ class Invoicing(QWidget):
             self.id.append(item.id)
             row.append(item.date_invoice.strftime("%d.%m.%Y"))
             row.append(item.summ_invoice)
-            name_company = conn.query(Counterparties).filter(Counterparties.id==item.id_company).first().name_c
+            name_company = conn.query(Counterparties).filter(Counterparties.id == item.id_company).first().name_c
             row.append(name_company)
             row.append(item.comment_invoice)
             # вставляем строчку в таблицу
@@ -178,6 +176,7 @@ class Invoicing(QWidget):
                     service_value.append(str(summ))
                     # вставляем данные
                     self.set_data_table_service(service_value)
+                self.win.setWindowTitle('Изменить счёт')
                 self.start_win()
 
     # запуск окна
@@ -185,6 +184,7 @@ class Invoicing(QWidget):
         self.win.setWindowModality(Qt.ApplicationModal)
         self.win.setWindowFlags(Qt.Window)
         self.win.btn_save.clicked.connect(self.add_upt_dell)
+        self.win.total_summ()
         self.win.show()
 
     def get_company_id(self):
@@ -192,6 +192,7 @@ class Invoicing(QWidget):
         result = conn.query(Counterparties).filter(Counterparties.name_c == current_name).first()
         return result.id
 
+    # !!!!!!!!!!!!!!!!!!!!!!!! С ЭТИМ НАДО ЧТО - ТО СДЕЛАТЬ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # метод модального окна "Добавить счёт"
     def add_upt_dell(self):
         if self.win.action == 'save':
@@ -231,14 +232,67 @@ class Invoicing(QWidget):
                     price_service=price_service)
                 conn.add(new_service_invoice)
                 conn.commit()
-            # Обновляем сумму счёта
+                # Обновляем сумму счёта
             conn.query(Invoice).filter(Invoice.id == last_id).update({'summ_invoice': sum(prices)})
             conn.commit()
         elif self.win.action == 'edit':
-            pass
+            # считываем данные сохранения в таблицу Invoice
+            name_company = self.win.cmbox_company.currentText()
+            id_company = conn.query(Counterparties).filter(Counterparties.name_c == name_company).first().id
+            d = self.win.date_edit.text()
+            comment = self.win.comment_edit.text()
+
+            # получаем индекс у текущей строким
+            selected_row = self.table_bill.currentItem()
+            index_row = self.table_bill.row(selected_row)
+
+            # ищем id текущего счёта
+            id = self.id[index_row]
+
+            # обновляем базу (таблица Invoice)
+            conn.query(Invoice).filter(Invoice.id == id).update({
+                'id_company': id_company,
+                'date_invoice': str_to_date(d),
+                'summ_invoice': 0,  # обновляется после сохранения услуг
+                'comment_invoice': comment,
+            })
+            conn.commit()
+            # ищем все услуги входящие в этот счёт
+            result = conn.query(ServiceInvoice).filter(ServiceInvoice.id_invoice == id).all()
+            id_service_list = []
+            for service in result:
+                id_service_list.append(service.id)
+
+            # определяем количество строк в таблице (услуг)
+            rows = self.win.table_service.rowCount()
+            prices = []
+            # удаляем все записи соотвествующие id_invoice
+            conn.query(ServiceInvoice).filter(ServiceInvoice.id_invoice == id).delete()
+            conn.commit()
+
+            for row in range(0, rows):
+                # считываем данные из таблицу окна с услугами
+                name_service = self.win.table_service.item(row, 0).text()
+                id_service = conn.query(ProductService).filter(ProductService.name_service == name_service).first().id
+                amount_service = int(self.win.table_service.item(row, 1).text())
+                price_service = float(self.win.table_service.item(row, 2).text())
+                prices.append(float(self.win.table_service.item(row, 3).text()))
+
+                # сохраняем обнавляенные данные
+                new_service_invoice = ServiceInvoice(
+                    id_invoice=id,
+                    id_service=id_service,
+                    amount_service=amount_service,
+                    price_service=price_service)
+                conn.add(new_service_invoice)
+                conn.commit()
+                # Обновляем сумму счёта
+            conn.query(Invoice).filter(Invoice.id == id).update({'summ_invoice': sum(prices)})
+            conn.commit()
         self.win.close()
         self.filling_table()
         self.change_period()
+    # !!!!!!!!!!!!!!!!!!!!!!!! С ЭТИМ НАДО ЧТО - ТО СДЕЛАТЬ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # сохранение услуг
     def save_service(self):
