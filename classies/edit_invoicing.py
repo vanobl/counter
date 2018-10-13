@@ -110,7 +110,7 @@ class EditInvoicing(QWidget):
         rows = self.table_service.rowCount()
         for row in range(0, rows):
             value = self.table_service.item(row, columns-1).text()
-            value_cells.append(int(value))
+            value_cells.append(float(value))
         summ = sum(value_cells)
         # вставляем сумму
         self.table_total.horizontalHeaderItem(1).setText(str(summ))
@@ -118,26 +118,8 @@ class EditInvoicing(QWidget):
     # метод заполнения таблицы
     def filling_table(self, row):
         self.table_service.setRowCount(int(0))  # удаляем строки
-        # items = conn.query(Invoice).all()
-        # self.id = []
-        # #d = item.date_invoice.strftime("%d.%m.%Y")
-        # for item in items:
-        #     # пересохраняем объект таблицы в строчку
-        #     row = []
-        #     name = item.id_service
-        #     amount = int(item.amount_service)
-        #     price = int(item.price_service)
-        #     summ = amount * price
-        #
-        #     self.id.append(item.id)
-        #     row.append(name)
-        #     row.append(amount)
-        #     row.append(price)
-        #     row.append(summ)
             # вставляем строчку в таблицу
         self.set_data_in_new_row(row)
-            # self.date_edit.setDate()
-
 
     # метод отображения окна
     def work_with_service(self, selector):
