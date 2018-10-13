@@ -53,5 +53,5 @@ class ServiceForInvoice(QWidget):
         amount = self.amount_service.text()
         price = self.price_service.text()
         if amount and price:
-            summ = int(amount) * int(price)
+            summ = int(amount) * float(price)
             self.summ_service.setText(str(summ))
