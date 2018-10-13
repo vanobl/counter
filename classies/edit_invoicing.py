@@ -74,6 +74,7 @@ class EditInvoicing(QWidget):
         self.btn_changed.clicked.connect(self.edit_service)
         self.btn_delete.clicked.connect(self.dell_service)
 
+
     # метод добавление данных в новую строку
     def set_data_in_new_row(self, data: list):
         rows = self.table_service.rowCount()
@@ -173,7 +174,8 @@ class EditInvoicing(QWidget):
 
     # сохранение услуг
     def save_service(self):
-        self.action = 'save'
+        if not self.action == 'edit':
+            self.action = 'save'
 
     # метод добавления услуг
     def insert_service(self):
