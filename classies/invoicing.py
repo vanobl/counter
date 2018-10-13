@@ -81,6 +81,18 @@ class Invoicing(QWidget):
             item = QtWidgets.QTableWidgetItem(str(data[i]))
             self.table_bill.setItem(rows, i, item)
 
+    # метод добавление данных в новую строку в окне edit_invoicing
+    def set_data_table_service(self, data: list):
+        rows = self.win.table_service.rowCount()
+        print(rows)
+        self.win.table_service.setRowCount(int(rows + 1))
+        columns = self.win.table_service.columnCount()
+        print(columns)
+        for i in range(0, columns):
+            item = QtWidgets.QTableWidgetItem(str(data[i]))
+            self.win.table_service.setItem(rows, i, item)
+
+
     # метод заполнения таблицы
     def filling_table(self):
         self.table_bill.setRowCount(int(0))  # удаляем строки
@@ -109,37 +121,62 @@ class Invoicing(QWidget):
                 value_cells.append(self.table_bill.item(index_row, column).text())
         return value_cells
 
-    # метод отображения окна
+    # метод текущего окна
     def work_with_service(self, selector):
         self.win = EditInvoicing(selector)
         self.id_selected_row = ''  # ID выделенной строки
         if selector == 'add':
             self.win.setWindowTitle('Добавить счёт')
-        else:
+        else:  # удаление и редактирование
             # получаем значения ячеек выделенной строки
             selected_row = self.table_bill.currentItem()
             value_cells = self.get_value_row(selected_row)
             # ищем id записи
             index_row = self.table_bill.row(selected_row)
             self.id_selected_row = self.id[index_row]
-            # формируем запрос в таблицу
-            result = conn.query(Invoice).filter(Invoice.id == self.id_selected_row)
+            # получаем id из таблицы invoice
+            query_invoice = conn.query(Invoice).filter(Invoice.id == self.id_selected_row)
+            id_invoice = query_invoice.first().id
+            # получаем все услуги по текущему счёту
+            query_service_invoice = conn.query(ServiceInvoice).filter(
+                ServiceInvoice.id_invoice == id_invoice)
             if selector == 'dell':
-                result.delete()
+                query_invoice.delete()
+                conn.commit()
+                query_service_invoice.delete()
                 conn.commit()
                 self.filling_table()
-            # elif selector == 'edit':
-            #     nmbr_doc = result.one().number_docs
-            #     # вставляем исходные значения
-            #     self.win.number_doc_edit.setText(str(nmbr_doc))  # номер
-            #     d = str_to_date(value_cells[0])
-            #     self.win.date_edit.setDate(d)  # дата
-            #     self.win.summ_edit.setText(value_cells[1])  # сумма
-            #     # приход / расход
-            #     for i in range(self.win.cmbox_action.count()):
-            #         if self.win.cmbox_action.itemText(i) == value_cells[2]:
-            #             self.win.cmbox_action.setCurrentIndex(i)
-            #     self.win.comment_edit.setText(value_cells[3])  # комментарий
+            elif selector == 'edit':
+                # вставляем данных из таблицы invoice
+                d = query_invoice.first().date_invoice
+                self.win.date_edit.setDate(d)  # дата
+                self.win.comment_edit.setText(query_invoice.first().comment_invoice)  # коммент
+                # компания
+                id_company = query_invoice.first().id_company
+                name_company = conn.query(Counterparties).filter(Counterparties.id == id_company).first().name_c
+                for i in range(self.win.cmbox_company.count()):
+                    if self.win.cmbox_company.itemText(i) == name_company:
+                        self.win.cmbox_company.setCurrentIndex(i)
+                # вставляем данных из таблицы service_invoice
+                services = query_service_invoice.all()
+                for index_row in range(0, len(services)):
+                    service_value = []
+                    # наименование услуг
+                    id_service = services[index_row].id_service
+                    name_service = conn.query(ProductService).filter(
+                        ProductService.id == id_service).first().name_service
+                    service_value.append(name_service)
+                    # количество
+                    amount = services[index_row].amount_service
+                    service_value.append(amount)
+                    # цена
+                    price = services[index_row].price_service
+                    service_value.append(price)
+                    # стоимость
+                    summ = int(amount) * int(price)
+                    service_value.append(str(summ))
+                    # вставляем данные
+                    self.set_data_table_service(service_value)
         self.start_win()
 
     # запуск окна
@@ -196,16 +233,8 @@ class Invoicing(QWidget):
             # Обновляем сумму счёта
             conn.query(Invoice).filter(Invoice.id == last_id).update({'summ_invoice': sum(prices)})
             conn.commit()
-            self.win.close()
         elif self.win.action == 'edit':
-            conn.query(Invoice).filter(
-                Invoice.id == self.id_selected_row
-            ).update({'number_docs': self.win.number_doc_edit.text(),
-                      'date_docs': str_to_date(self.win.date_edit.text()),
-                      'summ_docs': float(self.win.summ_edit.text()),
-                      'action_docs': self.win.cmbox_action.currentText(),
-                      'comment_docs': self.win.comment_edit.toPlainText()})
-            conn.commit()
+            pass
         self.win.close()
         self.filling_table()
         self.change_period()
