@@ -127,6 +127,7 @@ class Invoicing(QWidget):
         self.id_selected_row = ''  # ID выделенной строки
         if selector == 'add':
             self.win.setWindowTitle('Добавить счёт')
+            self.start_win()
         else:  # удаление и редактирование
             # получаем значения ячеек выделенной строки
             selected_row = self.table_bill.currentItem()
@@ -177,7 +178,7 @@ class Invoicing(QWidget):
                     service_value.append(str(summ))
                     # вставляем данные
                     self.set_data_table_service(service_value)
-        self.start_win()
+                self.start_win()
 
     # запуск окна
     def start_win(self):
@@ -221,7 +222,7 @@ class Invoicing(QWidget):
                 id_service = conn.query(ProductService).filter(ProductService.name_service == name_service).first().id
                 amount_service = int(self.win.table_service.item(row, 1).text())
                 price_service = float(self.win.table_service.item(row, 2).text())
-                prices.append(int(self.win.table_service.item(row, 3).text()))
+                prices.append(float(self.win.table_service.item(row, 3).text()))
                 # сохраняем в базу
                 new_service_invoice = ServiceInvoice(
                     id_invoice=last_id,
