@@ -5,6 +5,7 @@ from classies.counterparties import Counterpartie
 from classies.service import Service
 from classies.bank_docs import BankDocs
 from classies.invoicing import Invoicing
+from classies.incoming_acts import IncomingActs
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -32,6 +33,8 @@ class Counter(QObject):
             QAction, 'journal_income_consumption')
         self.journal_invoicing = self.window.findChild(
             QAction, 'journal_invoicing')
+        self.journal_acts = self.window.findChild(
+            QAction, 'journal_acts')
 
 
         # назначим действия для объектов
@@ -40,6 +43,7 @@ class Counter(QObject):
         self.select_service.triggered.connect(self.read_service)
         self.journal_income_consumption.triggered.connect(self.read_bank_docs)
         self.journal_invoicing.triggered.connect(self.read_invoicing)
+        self.journal_acts.triggered.connect(self.read_acts)
         self.window.show()
 
     # метод открытия окна с компаниями
@@ -77,7 +81,15 @@ class Counter(QObject):
     # метод открытия окна выставленые счета
     def read_invoicing(self):
         self.wincom = Invoicing()
-        self.wincom.setWindowTitle('Выставленые счета')
+        self.wincom.setWindowTitle('Выставленные счета')
+        self.wincom.setWindowModality(Qt.ApplicationModal)
+        self.wincom.setWindowFlags(Qt.Window)
+        self.wincom.show()
+
+    # метод открытия окна выставленые акты
+    def read_acts(self):
+        self.wincom = IncomingActs()
+        self.wincom.setWindowTitle('Выставленные акты')
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
