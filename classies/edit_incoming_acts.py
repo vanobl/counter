@@ -56,6 +56,9 @@ class EditIncomingActs(QWidget):
         self.table_total.setColumnWidth(0, 549)  # наименование услуг
         self.table_total.setColumnWidth(1, 80)  # количество
 
+        # замена имени колонки в форме
+        self.table_total.horizontalHeaderItem(0).setText('Итого по актам')
+
         # добавляем значения по умолчанию: текущую дату
         self.date_edit.setDate(QDate.currentDate())
         # список контроагентов
