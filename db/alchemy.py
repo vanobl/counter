@@ -114,7 +114,7 @@ class Invoice(CBase):
     __tablename__ = 'invoice'
 
     # поля таблицы счетов
-    id = Column(Integer, primary_key=True) 
+    id = Column(Integer, primary_key=True)
     id_company = Column(Integer, ForeignKey('counterparties.id'), nullable=False)
     date_invoice = Column(Date, nullable=False)
     summ_invoice = Column(Float, nullable=False)
@@ -139,6 +139,40 @@ class ServiceInvoice(CBase):
 
     def __init__(self, id_invoice, id_service, amount_service, price_service):
         self.id_invoice = id_invoice
+        self.id_service = id_service
+        self.amount_service = amount_service
+        self.price_service = price_service
+
+class Acts(CBase):
+    # имя таблицы
+    __tablename__ = 'acts'
+
+    # поля таблицы счетов
+    id = Column(Integer, primary_key=True)
+    id_company = Column(Integer, ForeignKey('counterparties.id'), nullable=False)
+    date_acts = Column(Date, nullable=False)
+    summ_acts = Column(Float, nullable=False)
+    comment_acts = Column(String, nullable=True)
+
+    def __init__(self, id_company, date_acts, comment_acts, summ_acts):
+        self.id_company = id_company
+        self.date_acts = date_acts
+        self.comment_acts = comment_acts
+        self.summ_acts = summ_acts
+
+class ServiceActs(CBase):
+    # имя таблицы
+    __tablename__ = 'service_act'
+
+    # поля таблицы счетов
+    id = Column(Integer, primary_key=True)
+    id_acts = Column(Integer, ForeignKey('acts.id'), nullable=False)  # группировка услуг в сёте
+    id_service = Column(Integer, ForeignKey('product_service.id'), nullable=True)
+    amount_service = Column(Integer, nullable=True)
+    price_service = Column(Float, nullable=True)
+
+    def __init__(self, id_acts, id_service, amount_service, price_service):
+        self.id_acts = id_acts
         self.id_service = id_service
         self.amount_service = amount_service
         self.price_service = price_service
