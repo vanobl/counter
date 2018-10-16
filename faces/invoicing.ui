@@ -24,7 +24,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Приод</string>
+        <string>Период</string>
        </property>
       </widget>
      </item>
