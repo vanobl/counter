@@ -43,6 +43,7 @@
     </property>
     <addaction name="journal_income_consumption"/>
     <addaction name="journal_invoicing"/>
+    <addaction name="journal_acts"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -82,7 +83,12 @@
   </action>
   <action name="journal_invoicing">
    <property name="text">
-    <string>Журнал высталенные счета</string>
+    <string>Журнал выставленные счета</string>
+   </property>
+  </action>
+  <action name="journal_acts">
+   <property name="text">
+    <string>Журнал выставленные акты</string>
    </property>
   </action>
  </widget>
