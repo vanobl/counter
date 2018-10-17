@@ -55,7 +55,9 @@ class IncomingActs(QWidget):
         self.table_bill.setColumnWidth(0, 80)  # дата
         self.table_bill.setColumnWidth(1, 80)  # сумма
         self.table_bill.setColumnWidth(2, 160)  # контрагент
-        # колонка "комментарий" использует остаток пространства 
+        # колонка "комментарий" использует остаток пространства
+
+        self.btn_changed.setEnabled(False)
 
         self.period = []
         self.id = []
