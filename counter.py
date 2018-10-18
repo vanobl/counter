@@ -70,7 +70,7 @@ class Counter(QObject):
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
 
-    # метод открытия окна выставленые счета
+    # метод открытия окна выписками банка
     def read_bank_docs(self):
         self.wincom = BankDocs()
         self.wincom.setWindowTitle('Выписки банка')

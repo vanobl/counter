@@ -7,6 +7,7 @@ from classies.show_invoice import ShowInvoice
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QPushButton, QTableWidget, QWidget, QLabel
+from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout, QSpacerItem, QSizePolicy
 from PySide2.QtCore import QFile, Qt
 
 from PySide2 import QtGui, QtCore, QtWidgets
@@ -34,6 +35,11 @@ class IncomingActs(QWidget):
         self.dialog = self.loader.load(self.ui_file, self)
         self.ui_file.close()
 
+        # определим лэйауты
+        self.h_layout = QHBoxLayout()
+        self.v_layout = QVBoxLayout()
+        self.g_layout = QGridLayout()
+
         # определим элементы управления
         self.label = self.dialog.findChild(QLabel, 'label')
         self.table_bill = self.dialog.findChild(QTableWidget, 'table_bill')
@@ -56,6 +62,26 @@ class IncomingActs(QWidget):
         self.table_bill.setColumnWidth(1, 80)  # сумма
         self.table_bill.setColumnWidth(2, 160)  # контрагент
         # колонка "комментарий" использует остаток пространства
+
+        # применим горизонтальный расlayout
+        self.h_layout.addWidget(self.btn_add)
+        self.h_layout.addWidget(self.btn_changed)
+        self.h_layout.addWidget(self.btn_delete)
+        # добавим спайсер
+        self.h_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        
+        # заполним вертикальный layout
+        self.v_layout.addWidget(self.label)
+        self.v_layout.addWidget(self.table_bill)
+        self.v_layout.addLayout(self.h_layout)
+
+        self.g_layout.addLayout(self.v_layout, 0, 0)
+
+        # применим сетку к окну
+        self.setLayout(self.g_layout)
+
+        # зададим размер окна
+        self.resize(640, 480)
 
         self.btn_changed.setEnabled(False)
 
