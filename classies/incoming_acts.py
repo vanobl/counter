@@ -84,9 +84,10 @@ class IncomingActs(QWidget):
         # зададим размер окна
         self.resize(640, 480)
 
-        self.btn_changed.setEnabled(False)
+        # self.btn_changed.setEnabled(False)
 
         self.period = []
+        # для сохранения загруженных актов
         self.id_acts = []
 
         self.filling_table()
@@ -123,13 +124,13 @@ class IncomingActs(QWidget):
 
     # метод заполнения таблицы
     def filling_table(self):
+        self.id_acts = []
         self.table_bill.setRowCount(int(0))  # удаляем строки
         items = conn.query(Acts).all()
-        self.id = []
         for item in items:
             # пересохраняем объект таблицы в строчку
             row = []
-            self.id.append(item.id)
+            self.id_acts.append(item.id)
             row.append(item.date_acts.strftime("%d.%m.%Y"))
             row.append(item.summ_acts)
             name_company = conn.query(Counterparties).filter(Counterparties.id == item.id_company).first().name_c
@@ -155,11 +156,33 @@ class IncomingActs(QWidget):
 
     def edit_act(self):  # метод редактирования акта
         if self.table_bill.isItemSelected(self.table_bill.currentItem()):
-            self.work_with_service('edit')
+            self.dell_and_edit('edit')
 
     def dell_act(self):   # метод удаления выделиной строки
         if self.table_bill.isItemSelected(self.table_bill.currentItem()):
-            self.work_with_service('dell')
+            self.dell_and_edit('dell')
+
+    # метод возвращвет ID выбранного акта
+    def get_id_selected_act(self):
+        selected_row = self.table_bill.currentItem()
+        index_row = self.table_bill.row(selected_row)
+        result = self.id_acts[index_row]
+        return result
+
+    def dell_and_edit(self, selector):
+        id_selected_act = self.get_id_selected_act()
+        # создаём запрос для акта
+        query_act = conn.query(Acts).filter(Acts.id == id_selected_act)
+        # создаём запрос для услуг по текущему счёту
+        query_service_invoice = conn.query(ServiceActs).filter(
+            ServiceActs.id_acts == id_selected_act)
+        if selector == 'dell':
+            query_act.delete()
+            query_service_invoice.delete()
+            conn.commit()
+            self.filling_table()
+        elif selector == 'edit':
+            self.open_show_service_window(action='edit', title='Изменить акт', id_to_fill=id_selected_act)
 
     # функционал главного окна "просмотр актов" (incomming acts)
     def open_show_invoice_window(self):
@@ -173,27 +196,64 @@ class IncomingActs(QWidget):
     # кнопка 2-го окна
     def select_invoice(self):  # метод выбора счёта
         if self.show_inv_win.table_bill.isItemSelected(self.show_inv_win.table_bill.currentItem()):
-            self.open_show_service_window()
+            id_invoice = self.show_inv_win.selected_invoice()
+            self.open_show_service_window(action='add', title='Выбрать услуги', id_to_fill=id_invoice)
 
     # функционал 2-го окна "Просмотр выписок" (show_invoice)
-    def open_show_service_window(self):
-        print('открыто через главное окно')
-        self.show_ser_win = ShowService('add')
-        self.show_ser_win.setWindowTitle('Выбрать услуги')
+    def open_show_service_window(self, action, title, id_to_fill):
+        self.show_ser_win = ShowService(action)
+        self.show_ser_win.setWindowTitle(title)
         self.show_ser_win.setWindowModality(Qt.ApplicationModal)
         self.show_ser_win.setWindowFlags(Qt.Window)
         self.show_ser_win.show()
-        # ищем id выбранного счёта
-        id_invoice = self.show_inv_win.selected_invoice()
-
         # заполняем таблицу в 3-м окне
-        self.show_ser_win.filling_table(id_invoice)
-        self.show_ser_win.btn_add.clicked.connect(self.select_service)
+        if action =='add':  # при создании акта
+            self.show_ser_win.invoice_filling_table(id_to_fill)
+            self.show_ser_win.btn_add.clicked.connect(self.select_service)
+        elif action == 'edit':  # при редактировании акта
+            self.show_ser_win.act_filling_table(id_to_fill)
+            self.show_ser_win.btn_save.clicked.connect(self.save_services_in_act)
 
-    # кнопка 3-го окна
+    # кнопки 3-го окна
     def select_service(self):  # метод выбора услуг
         if self.show_ser_win.table_service.isItemSelected(self.show_ser_win.table_service.currentItem()):
             self.add_services_in_act()
+
+    def save_services_in_act(self):  # метод сохранения изменений в акте
+        # получаем id выбранного акта
+        id_selected_act = self.get_id_selected_act()
+        # получаем выбранных id услуг
+        selected_id_services = self.show_ser_win.get_id_services()
+        # получаем список всех услуг для выбранного акта
+        services = conn.query(ServiceActs).filter(ServiceActs.id_acts == id_selected_act).all()
+        # сохраняем id
+        id_services = []
+        for service in services:
+            id_services.append(service.id)
+        prices = []
+        for id in selected_id_services:
+            query_service = conn.query(ServiceActs).filter(ServiceActs.id== id).first()
+            price = query_service.price_service
+            amount = query_service.amount_service
+            prices.append(price * amount)
+            # удаляем услуги из списка которых нет в списке акта
+            id_services.remove(id)
+        # удаляем из базы
+        if len(id_services) > 0:
+            for id in id_services:
+                conn.query(ServiceActs).filter(ServiceActs.id == id).delete()
+            conn.commit()
+
+        # обновляем таблитцу acts
+        comment = self.show_ser_win.comment_edit.text()
+        d = self.show_ser_win.date_edit.text()
+        conn.query(Acts).filter(Acts.id == id_selected_act).update({
+            'date_acts': str_to_date(d),
+            'comment_acts': comment,
+            'summ_acts': sum(prices)})
+        conn.commit()
+        self.show_ser_win.close()
+        self.filling_table()
 
     def add_services_in_act(self):
         # получаем id выбранного счёта
@@ -218,7 +278,6 @@ class IncomingActs(QWidget):
         prices = []
         for id in id_services:
             # считываем параметры выбранной услуги из БД
-            print(id)
             query_id = conn.query(ServiceInvoice).filter(ServiceInvoice.id == id).first()
             amount = query_id.amount_service
             price = query_id.price_service
