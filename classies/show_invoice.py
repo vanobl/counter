@@ -101,8 +101,8 @@ class ShowInvoice(QWidget):
             self.set_data_in_new_row(row)
         self.change_period()
 
+    # метод возвращвет ID выбранного счёта
     def selected_invoice(self):
-        # определяем индекс строки
         selected_row = self.table_bill.currentItem()
         index_row = self.table_bill.row(selected_row)
         result = self.id_invoices[index_row]
