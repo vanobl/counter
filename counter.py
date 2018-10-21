@@ -6,6 +6,7 @@ from classies.service import Service
 from classies.bank_docs import BankDocs
 from classies.invoicing import Invoicing
 from classies.incoming_acts import IncomingActs
+from classies.budget import Budget
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -28,6 +29,7 @@ class Counter(QObject):
         self.select_company = self.window.findChild(QAction, 'select_company')
         self.select_counterparties = self.window.findChild(
             QAction, 'select_counterparties')
+        self.select_budget = self.window.findChild(QAction, 'select_budget')
         self.select_service = self.window.findChild(QAction, 'select_service')
         self.journal_income_consumption = self.window.findChild(
             QAction, 'journal_income_consumption')
@@ -41,6 +43,7 @@ class Counter(QObject):
         self.select_company.triggered.connect(self.read_company)
         self.select_counterparties.triggered.connect(self.read_counterparties)
         self.select_service.triggered.connect(self.read_service)
+        self.select_budget.triggered.connect(self.read_budget)
         self.journal_income_consumption.triggered.connect(self.read_bank_docs)
         self.journal_invoicing.triggered.connect(self.read_invoicing)
         self.journal_acts.triggered.connect(self.read_acts)
@@ -69,6 +72,14 @@ class Counter(QObject):
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
+    
+    # метод открытия окна с бюджетом
+    def read_budget(self):
+        self.winbud = Budget()
+        self.winbud.setWindowTitle('Платежи в бюджет')
+        self.winbud.setWindowModality(Qt.ApplicationModal)
+        self.winbud.setWindowFlags(Qt.Window)
+        self.winbud.show()
 
     # метод открытия окна выписками банка
     def read_bank_docs(self):

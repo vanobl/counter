@@ -14,6 +14,8 @@ from classies.edit_bank_docs import EditBankDocs
 
 
 from db.alchemy import BankDocsRev, str_to_date
+from db.alchemy import Counterparties as table_couterpart
+from db.alchemy import ByudgetPay as table_byudget
 
 
 # создадим сессию
@@ -95,7 +97,7 @@ class BankDocs(QWidget):
             row = []
             self.id.append(item.id)
             row.append(item.date_docs.strftime("%d.%m.%Y"))
-            row.append(item.summ_docs)
+            row.append(f'{item.summ_docs:.2f}')
             row.append(item.action_docs)
             row.append(item.comment_docs)
             # вставляем строчку в таблицу 
@@ -116,8 +118,13 @@ class BankDocs(QWidget):
     def work_with_service(self, selector):
         self.win = EditBankDocs(selector)
         self.id_selected_row = ''  # ID выделенной строки
+        budget_q = conn.query(table_byudget).all()
         if selector == 'add':
             self.win.setWindowTitle('Добавить выписку')
+            # заполним комбобокс контрагентами
+            counterpart_q = conn.query(table_couterpart).all()
+            for counterp in counterpart_q:
+                self.win.combo_counterparties.addItem(counterp.name_c)
             self.start_win()
         else:
             # получаем значения ячеек выделенной строки
@@ -127,22 +134,43 @@ class BankDocs(QWidget):
             index_row = self.table_bill.row(selected_row)
             self.id_selected_row = self.id[index_row]
             # формируем запрос в таблицу
-            result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row)
+            result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).first()
             if selector == 'dell':
                 result.delete()
                 conn.commit()
                 self.filling_table()
             elif selector == 'edit':
-                nmbr_doc = result.one().number_docs
+                nmbr_doc = result.number_docs
                 # вставляем исходные значения
-                self.win.number_doc_edit.setText(str(nmbr_doc))  # номер
+                self.win.number_doc_edit.setText(str(result.number_docs))  # номер
                 d = str_to_date(value_cells[0])
-                self.win.date_edit.setDate(d)  # дата
-                self.win.summ_edit.setText(value_cells[1])  # сумма
+                #self.win.date_edit.setDate(d)
+                self.win.date_edit.setDate(result.date_docs)  # дата
+                self.win.summ_edit.setText(f'{result.summ_docs:.2f}')  # сумма
                 # приход / расход
                 for i in range(self.win.cmbox_action.count()):
                     if self.win.cmbox_action.itemText(i) == value_cells[2]:
                         self.win.cmbox_action.setCurrentIndex(i)
+                # заполним комбобокс контрагентами
+                counterpart_q = conn.query(table_couterpart).all()
+                for counterp in counterpart_q:
+                    self.win.combo_counterparties.addItem(counterp.name_c)
+                # установим текущее значение в списке
+                self.win.combo_counterparties.setCurrentText(result.p_counterparties.name_c)
+                # заполним комбобокс с бюджетами, если нужно
+                if result.byudgetpay_id:
+                    # ставим галочку
+                    self.win.check_byudget.setEnabled(True)
+                    self.win.check_byudget.setChecked(True)
+                    # заполняем список
+                    self.win.combo_byudget.setEnabled(True)
+                    for item in budget_q:
+                        self.win.combo_byudget.addItem(item.name_byudget)
+                    # установим текущее значение в списке
+                    self.win.combo_byudget.setCurrentText(result.p_byudgetpay.name_byudget)
+                else:
+                    pass
+
                 self.win.comment_edit.setText(value_cells[3])  # комментарий
                 self.start_win()
 
@@ -152,19 +180,45 @@ class BankDocs(QWidget):
         self.win.setWindowFlags(Qt.Window)
         self.win.btn_action.clicked.connect(self.add_upt_dell)
         self.win.btn_exit.clicked.connect(self.win.close)
+        self.win.cmbox_action.currentTextChanged.connect(self.byudget)
+        self.win.check_byudget.stateChanged.connect(self.byudget_pay)
         self.win.show()
+    
+    # методы для включения/отключения дополнительных полей в выписке
+    def byudget(self):
+        if self.win.cmbox_action.currentText() == 'Приход':
+            self.win.check_byudget.setEnabled(False)
+        elif self.win.cmbox_action.currentText() == 'Расход':
+            self.win.check_byudget.setEnabled(True)
+    
+    def byudget_pay(self):
+        if self.win.check_byudget.isChecked():
+            self.win.combo_byudget.setEnabled(True)
+            budget_query = conn.query(table_byudget).all()
+            for item in budget_query:
+                self.win.combo_byudget.addItem(item.name_byudget)
+        else:
+            self.win.combo_byudget.clear()
+            self.win.combo_byudget.setEnabled(False)
 
     # метод модального окна "Редактирование банковские выписки"
     def add_upt_dell(self):
+        cont_id = conn.query(table_couterpart).filter_by(name_c = self.win.combo_counterparties.currentText()).first()
+        byud_q = conn.query(table_byudget).filter_by(name_byudget = self.win.combo_byudget.currentText()).first()
+        if self.win.combo_byudget.isEnabled():
+            byudget_text = byud_q.id
+        else:
+            byudget_text = None
+            
         if self.win.action == 'add':
-            d = self.win.date_edit.text()
-            self.period.append(d)
             new_doc = BankDocsRev(
                 number_docs=int(self.win.number_doc_edit.text()),
-                date_docs=str_to_date(d),
-                summ_docs=int(self.win.summ_edit.text()),
+                date_docs = self.win.date_edit.date().toPython(),
+                summ_docs=float(self.win.summ_edit.text()),
                 action_docs=self.win.cmbox_action.currentText(),
-                comment_docs=self.win.comment_edit.toPlainText())
+                comment_docs=self.win.comment_edit.toPlainText(),
+                counterparties_id = cont_id.id,
+                byudgetpay_id = byudget_text)
             conn.add(new_doc)
             conn.commit()
             self.win.close()
@@ -172,10 +226,12 @@ class BankDocs(QWidget):
             conn.query(BankDocsRev).filter(
                 BankDocsRev.id == self.id_selected_row
             ).update({'number_docs': self.win.number_doc_edit.text(),
-                'date_docs': str_to_date(self.win.date_edit.text()),
+                'date_docs': self.win.date_edit.date().toPython(),
                 'summ_docs': float(self.win.summ_edit.text()),
                 'action_docs': self.win.cmbox_action.currentText(),
-                'comment_docs': self.win.comment_edit.toPlainText()})
+                'comment_docs': self.win.comment_edit.toPlainText(),
+                'counterparties_id': cont_id.id,
+                'byudgetpay_id': byudget_text})
             conn.commit()
         self.win.close()
         self.filling_table()

@@ -2,6 +2,7 @@ import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, create_engine,\
     Date, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
 
 import datetime
@@ -77,20 +78,42 @@ class BankDocsRev(CBase):
     id = Column(Integer, primary_key=True)
     number_docs = Column(Integer, nullable=False)
     date_docs = Column(Date, nullable=False)
-    summ_docs = Column(Float, nullable=False)
+    summ_docs = Column(Float(10, 2), nullable=False)
     action_docs = Column(String, nullable=False)
     comment_docs = Column(String)
+    counterparties_id = Column(Integer, ForeignKey('counterparties.id'))
+    byudgetpay_id = Column(Integer, ForeignKey('byudget_pay.id'), nullable=True, default=None)
 
-    def __init__(self, number_docs, date_docs, summ_docs, action_docs, comment_docs):
+    # определим ссылки на таблицы
+    p_counterparties = relationship('Counterparties', foreign_keys=[counterparties_id])
+    p_byudgetpay = relationship('ByudgetPay', foreign_keys=[byudgetpay_id])
+
+    def __init__(self, number_docs, date_docs, summ_docs, action_docs, comment_docs, counterparties_id, byudgetpay_id):
         self.number_docs = number_docs
         self.date_docs = date_docs
         self.summ_docs = summ_docs
         self.action_docs = action_docs
         self.comment_docs = comment_docs
+        self.counterparties_id = counterparties_id
+        self.byudgetpay_id= byudgetpay_id
     
     def __repr__(self):
-        return 'Документ: №{0}, {3} от {1}, на сумму {2}, коментарий {4}'.format(
-            self.number_docs, self.date_docs, self.summ_docs, self.action_docs, self.comment_docs)
+        return f'Документ: №{self.number_docs}, {self.action_docs} от {self.date_docs}, на сумму {self.summ_docs}, коментарий {self.comment_docs}'
+
+# определим класс таблицы детализации платежей в бюджет
+class ByudgetPay(CBase):
+    # имя таблицы
+    __tablename__ = 'byudget_pay'
+
+    # поля таблицы
+    id = Column(Integer, primary_key=True)
+    name_byudget = Column(String(255), nullable=False)
+
+    def __init__(self, name_byudget):
+        self.name_byudget = name_byudget
+    
+    def __repr__(self):
+        return f'Наименование отчисления {self.name_byudget}'
 
 # определим класс таблицы товаров и услуг
 class ProductService(CBase):
