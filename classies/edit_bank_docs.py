@@ -33,7 +33,7 @@ class EditBankDocs(QWidget):
         self.combo_counterparties = self.dialog.findChild(QComboBox, 'combo_counterparties')
         self.combo_byudget = self.dialog.findChild(QComboBox, 'combo_byudget')
         self.check_byudget = self.dialog.findChild(QCheckBox, 'check_byudget')
-        self.comment_edit = self.dialog.findChild(QTextEdit, 'comment_edit')
+        self.comment_edit = self.dialog.findChild(QLineEdit, 'comment_edit')
         self.number_doc_edit = self.dialog.findChild(QLineEdit, 'number_doc_edit')
         self.btn_action = self.dialog.findChild(QPushButton, 'btn_action')
         self.btn_exit = self.dialog.findChild(QPushButton, 'btn_exit')

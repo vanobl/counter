@@ -213,12 +213,12 @@ class BankDocs(QWidget):
         if self.win.action == 'add':
             new_doc = BankDocsRev(
                 number_docs=int(self.win.number_doc_edit.text()),
-                date_docs = self.win.date_edit.date().toPython(),
+                date_docs=self.win.date_edit.date().toPython(),
                 summ_docs=float(self.win.summ_edit.text()),
                 action_docs=self.win.cmbox_action.currentText(),
-                comment_docs=self.win.comment_edit.toPlainText(),
-                counterparties_id = cont_id.id,
-                byudgetpay_id = byudget_text)
+                comment_docs=self.win.comment_edit.text(),
+                counterparties_id=cont_id.id,
+                byudgetpay_id=byudget_text)
             conn.add(new_doc)
             conn.commit()
             self.win.close()
@@ -229,7 +229,7 @@ class BankDocs(QWidget):
                 'date_docs': self.win.date_edit.date().toPython(),
                 'summ_docs': float(self.win.summ_edit.text()),
                 'action_docs': self.win.cmbox_action.currentText(),
-                'comment_docs': self.win.comment_edit.toPlainText(),
+                'comment_docs': self.win.comment_edit.text(),
                 'counterparties_id': cont_id.id,
                 'byudgetpay_id': byudget_text})
             conn.commit()
