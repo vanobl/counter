@@ -31,7 +31,7 @@ class ShowService(QWidget):
         self.action = action
 
         # определим элементы управления
-        self.label_data = self.dialog.findChild(QLabel, 'label_data')
+        self.label = self.dialog.findChild(QLabel, 'label')
         self.date_edit = self.dialog.findChild(QDateEdit, 'date_edit')
         self.table_service = self.dialog.findChild(QTableWidget, 'table_service')
         self.comment_edit = self.dialog.findChild(QLineEdit, 'comment_edit')
@@ -87,7 +87,7 @@ class ShowService(QWidget):
         # переменовываем
         self.btn_add.setText('Добавит в акт')
         self.label_commet.setText('Комментарий к акту')
-        self.label_data.setText('Акт от ')
+        self.label.setText('Акт от ')
 
         self.id_services = []  # ID данных загружаемых из таблицы ServiceInvoice
 
