@@ -136,7 +136,7 @@ class BankDocs(QWidget):
             # формируем запрос в таблицу
             result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).first()
             if selector == 'dell':
-                result.delete()
+                conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).delete()
                 conn.commit()
                 self.filling_table()
             elif selector == 'edit':
