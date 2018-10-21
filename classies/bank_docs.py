@@ -134,9 +134,10 @@ class BankDocs(QWidget):
             index_row = self.table_bill.row(selected_row)
             self.id_selected_row = self.id[index_row]
             # формируем запрос в таблицу
-            result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).first()
+            id_query = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row)
+            result = id_query.first()
             if selector == 'dell':
-                conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).delete()
+                id_query.delete()
                 conn.commit()
                 self.filling_table()
             elif selector == 'edit':
