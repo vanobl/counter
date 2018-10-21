@@ -4,9 +4,8 @@ from classies.connect import Connect
 from classies.comunicate import Communicate
 
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QPushButton, QListView, QLineEdit, QTextEdit, QListWidget, QLabel, QWidget
-from PySide2.QtCore import QFile, QObject, QStringListModel, QObject, Qt, Signal, SIGNAL, Slot
-from PySide2 import QtGui
+from PySide2.QtWidgets import QPushButton, QListWidget, QWidget
+from PySide2.QtCore import QFile, Qt
 
 from classies.edit_service import EditService
 
@@ -46,7 +45,7 @@ class Service(QWidget):
 
         # запускаем заполнение таблицы
         self.filling_list()
-    
+
     # метод заполнения списка компаний
     def filling_list(self):
         # выполняем запрос
@@ -69,14 +68,17 @@ class Service(QWidget):
             selected_list = self.list_company.selectedItems()
             for ls in selected_list:
                 self.name_service = ls.text()
-            query_service = conn.query(ProductService).filter_by(name_service=self.name_service).first()
+            query_service = conn.query(ProductService).filter_by(
+                name_service=self.name_service).first()
             self.win.edit_name.setText(query_service.name_service)
         elif selector == 'dell':
             selected_list = self.list_company.selectedItems()
             for ls in selected_list:
                 self.name_service = ls.text()
-            query_service = conn.query(ProductService).filter_by(name_service=self.name_service).first()
-            conn.query(ProductService).filter(ProductService.id == query_service.id).delete()
+            query_service = conn.query(ProductService).filter_by(
+                name_service=self.name_service).first()
+            conn.query(ProductService).filter(
+                ProductService.id == query_service.id).delete()
             conn.commit()
         self.win.setWindowModality(Qt.ApplicationModal)
         self.win.setWindowFlags(Qt.Window)
@@ -93,11 +95,12 @@ class Service(QWidget):
             self.win.close()
             self.filling_list()
         elif self.win.action == 'edit':
-            conn.query(ProductService).filter(ProductService.name_service == self.name_service).update({'name_service': self.win.edit_name.text()})
+            conn.query(ProductService).filter(
+                ProductService.name_service == self.name_service
+            ).update({'name_service': self.win.edit_name.text()})
             conn.commit()
             self.win.close()
             self.filling_list()
-
 
     # метод добавления услуг
     def insert_service(self):
@@ -113,7 +116,9 @@ class Service(QWidget):
         name_service = ''
         for item in service_list:
             name_service = item.text()
-        query_service = conn.query(ProductService).filter_by(name_service=name_service).first()
-        conn.query(ProductService).filter(ProductService.id == query_service.id).delete()
+        query_service = conn.query(ProductService).filter_by(
+            name_service=name_service).first()
+        conn.query(ProductService).filter(
+            ProductService.id == query_service.id).delete()
         conn.commit()
         self.filling_list()

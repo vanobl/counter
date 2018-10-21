@@ -4,16 +4,17 @@ from classies.connect import Connect
 from classies.comunicate import Communicate
 
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QPushButton, QListView, QLineEdit, QTextEdit, QListWidget, QLabel, QWidget
-from PySide2.QtCore import QFile, QObject, QStringListModel, QObject, SIGNAL, Signal
-from PySide2 import QtGui
+from PySide2.QtWidgets import QPushButton, QLineEdit, QLabel, QWidget
+from PySide2.QtCore import QFile
+# from PySide2 import QtGui
 
-#импортируем таблицы
-from db.alchemy import Company
-#создадим сессию
+# импортируем таблицы
+# from db.alchemy import Company
+# создадим сессию
 conn = Connect().get_session()
 
 over = Communicate()
+
 
 class EditCompany(QWidget):
     def __init__(self, action, parent=None):
@@ -27,7 +28,7 @@ class EditCompany(QWidget):
 
         self.action = action
 
-        #определим элементы управления
+        # определим элементы управления
         self.btn_action = self.dialog.findChild(QPushButton, 'btn_action')
         self.btn_exit = self.dialog.findChild(QPushButton, 'btn_exit')
         self.edit_company = self.dialog.findChild(QLineEdit, 'edit_company')

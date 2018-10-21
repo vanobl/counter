@@ -4,12 +4,9 @@ from classies.connect import Connect
 from classies.comunicate import Communicate
 
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QPushButton, QListView, QLineEdit, QTextEdit, QListWidget, QLabel, QWidget
-from PySide2.QtCore import QFile, QObject, QStringListModel, QObject, SIGNAL, Signal
-from PySide2 import QtGui
+from PySide2.QtWidgets import QPushButton, QLineEdit, QWidget
+from PySide2.QtCore import QFile
 
-# импортируем таблицы
-from db.alchemy import Company
 # создадим сессию
 conn = Connect().get_session()
 
@@ -32,4 +29,3 @@ class EditService(QWidget):
         self.btn_action = self.dialog.findChild(QPushButton, 'btn_action')
         self.btn_exit = self.dialog.findChild(QPushButton, 'btn_exit')
         self.edit_name = self.dialog.findChild(QLineEdit, 'edit_name')
-
