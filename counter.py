@@ -8,6 +8,7 @@ from classies.invoicing import Invoicing
 from classies.incoming_acts import IncomingActs
 from classies.budget import Budget
 from classies.show_bank_docs import ShowBankDocs
+from classies.show_book_income import ShowBookIncome
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -39,7 +40,7 @@ class Counter(QObject):
         self.journal_acts = self.window.findChild(
             QAction, 'journal_acts')
         self.report_bank_docs = self.window.findChild(QAction, 'report_bank_docs')
-
+        self.report_book_income = self.window.findChild(QAction, 'report_book_income')
 
 
         # назначим действия для объектов
@@ -51,6 +52,7 @@ class Counter(QObject):
         self.journal_invoicing.triggered.connect(self.read_invoicing)
         self.journal_acts.triggered.connect(self.read_acts)
         self.report_bank_docs.triggered.connect(self.read_bank_statament)
+        self.report_book_income.triggered.connect(self.read_book_income)
         self.window.show()
 
     # метод открытия окна с компаниями
@@ -112,6 +114,13 @@ class Counter(QObject):
     def read_bank_statament(self):
         self.wincom = ShowBankDocs()
         self.wincom.setWindowTitle('Выписки банка')
+        self.wincom.setWindowModality(Qt.ApplicationModal)
+        self.wincom.setWindowFlags(Qt.Window)
+        self.wincom.show()
+
+    def read_book_income(self):
+        self.wincom = ShowBookIncome()
+        self.wincom.setWindowTitle('Книга доходов и расходов')
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()

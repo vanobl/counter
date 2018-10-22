@@ -35,4 +35,7 @@ class EditCompany(QWidget):
         self.edit_inn = self.dialog.findChild(QLineEdit, 'edit_inn')
         self.edit_ogrn = self.dialog.findChild(QLineEdit, 'edit_ogrn')
         self.edit_address = self.dialog.findChild(QLineEdit, 'edit_address')
+        self.edit_inspection = self.dialog.findChild(QLineEdit, 'edit_inspection')
+        self.edit_okved = self.dialog.findChild(QLineEdit, 'edit_okved')
+        self.edit_phone = self.dialog.findChild(QLineEdit, 'edit_phone')
         self.label_id = self.dialog.findChild(QLabel, 'label_id')

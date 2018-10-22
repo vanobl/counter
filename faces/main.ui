@@ -51,6 +51,7 @@
      <string>Отчёты</string>
     </property>
     <addaction name="report_bank_docs"/>
+    <addaction name="report_book_income"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -104,6 +105,11 @@
   <action name="report_bank_docs">
    <property name="text">
     <string>Отчёт выписка банка</string>
+   </property>
+  </action>
+  <action name="report_book_income">
+   <property name="text">
+    <string>Отчёт книга доходов и расходов</string>
    </property>
   </action>
  </widget>

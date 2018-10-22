@@ -25,12 +25,19 @@ class Company(CBase):
     inn = Column(String, nullable=False)
     ogrn = Column(String, nullable=False)
     adress = Column(String, nullable=False)
+    inspection = Column(String, nullable=False)
+    okved = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
 
-    def __init__(self, namecompany, inn, ogrn, adress):
+    def __init__(self, namecompany, inn, ogrn, adress, inspection, okved, phone):
         self.namecompany = namecompany
         self.inn = inn
         self.ogrn = ogrn
         self.adress = adress
+        self.inspection = inspection
+        self.okved = okved
+        self.phone = phone
+
 
     def __repr__(self):
         return 'Company: {}, INN: {}, OGRN: {}, ADDRESS: {}'.format(
@@ -149,6 +156,9 @@ class Invoice(CBase):
         self.comment_invoice = comment_invoice
         self.summ_invoice = summ_invoice
 
+    # определим ссылки на таблицы
+    p_counterparties = relationship('Counterparties', foreign_keys=[id_company])
+
 class ServiceInvoice(CBase):
     # имя таблицы
     __tablename__ = 'service_invoice'
@@ -165,6 +175,10 @@ class ServiceInvoice(CBase):
         self.id_service = id_service
         self.amount_service = amount_service
         self.price_service = price_service
+
+    # определим ссылки на таблицы
+    p_invoice = relationship('Invoice', foreign_keys=[id_invoice])
+    p_product_service = relationship('ProductService', foreign_keys=[id_service])
 
 class Acts(CBase):
     # имя таблицы
@@ -183,6 +197,8 @@ class Acts(CBase):
         self.comment_acts = comment_acts
         self.summ_acts = summ_acts
 
+    p_counterparties = relationship('Counterparties', foreign_keys=[id_company])
+
 class ServiceActs(CBase):
     # имя таблицы
     __tablename__ = 'service_act'
@@ -199,6 +215,10 @@ class ServiceActs(CBase):
         self.id_service = id_service
         self.amount_service = amount_service
         self.price_service = price_service
+
+    # определим ссылки на таблицы
+    p_acts = relationship('Acts', foreign_keys=[id_acts])
+    p_product_service = relationship('ProductService', foreign_keys=[id_service])
 
 # конвертер для дата полученных из виджетов
 def str_to_date(datestr="", format="%d.%m.%Y"):
