@@ -13,7 +13,7 @@ class Connect:
     def __init__(self):
         # создадим подключение к базе
         path = os.path.join('db', 'counter.db')
-        engine = create_engine('sqlite:///{}'.format(path))
+        engine = create_engine(f'sqlite:///{path}')
         # создадим сессию для базы
         self.session = sessionmaker(bind=engine)()
 
