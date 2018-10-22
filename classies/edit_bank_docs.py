@@ -64,6 +64,7 @@ class EditBankDocs(QWidget):
         self.h_layout_date_num.addWidget(self.label_number_doc)
         self.h_layout_date_num.addWidget(self.number_doc_edit)
         self.h_layout_date_num.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        # self.h_layout_date_num.insertSpacing(4)
 
         self.h_layout_action.addWidget(self.label_action)
         self.h_layout_action.addWidget(self.cmbox_action)
@@ -77,7 +78,7 @@ class EditBankDocs(QWidget):
         self.h_layout_budget.addWidget(self.combo_byudget)
         self.h_layout_budget.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        self.h_layout_summ.addWidget(self.label_coment)
+        self.h_layout_summ.addWidget(self.label_summ)
         self.h_layout_summ.addWidget(self.summ_edit)
         self.h_layout_summ.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -100,7 +101,7 @@ class EditBankDocs(QWidget):
 
         self.setLayout(self.g_layout)
 
-        self.resize(800, 480)
+        self.resize(640, 350)
 
 
 
