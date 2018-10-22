@@ -27,6 +27,7 @@ class Counter(QObject):
         self.ui_file.close()
 
         # определим компоненты управления
+        self.action_exit = self.window.findChild(QAction, 'action_exit')
         self.select_company = self.window.findChild(QAction, 'select_company')
         self.select_counterparties = self.window.findChild(
             QAction, 'select_counterparties')
@@ -43,6 +44,7 @@ class Counter(QObject):
 
 
         # назначим действия для объектов
+        self.action_exit.triggered.connect(self.exitapp)
         self.select_company.triggered.connect(self.read_company)
         self.select_counterparties.triggered.connect(self.read_counterparties)
         self.select_service.triggered.connect(self.read_service)
@@ -116,3 +118,6 @@ class Counter(QObject):
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
 
+    # метод закрытия программы
+    def exitapp(self):
+        self.window.close()

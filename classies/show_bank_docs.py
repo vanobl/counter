@@ -92,7 +92,8 @@ class ShowBankDocs(QWidget):
         for bank in bank_query:
             item = Item()
             item.date = bank.date_docs.strftime('%d.%m.%Y')
-            item.summ = str(round(bank.summ_docs, 2)).replace('.', ',')
+            # item.summ = str(round(bank.summ_docs, 2)).replace('.', ',')
+            item.summ = round(bank.summ_docs, 2)
             item.counterp = bank.p_counterparties.name_c
             item.coment = bank.comment_docs
             items.append(item)
@@ -106,7 +107,8 @@ class ShowBankDocs(QWidget):
         end_date.date = datetime.strftime(self.date_end.date().toPython(), '%d.%m.%Y')
 
         total = Item()
-        total.summ = str(round(total_summ, 2)).replace('.', ',')
+        # total.summ = str(round(total_summ, 2)).replace('.', ',')
+        total.summ = round(total_summ, 2)
         
         # группируем данные для передачи в отчёт
         date = dict(items = items, start_date = start_date, end_date = end_date, total = total)
