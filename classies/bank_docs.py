@@ -6,6 +6,7 @@ from classies.comunicate import Communicate
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QPushButton, QTableWidget, QWidget, QLabel
+from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout, QSpacerItem, QSizePolicy
 from PySide2.QtCore import QFile, Qt
 
 from PySide2 import QtGui, QtCore, QtWidgets
@@ -35,6 +36,11 @@ class BankDocs(QWidget):
         self.dialog = self.loader.load(self.ui_file, self)
         self.ui_file.close()
 
+        # определим лэйауты
+        self.h_layout_btn = QHBoxLayout()
+        self.v_layout = QVBoxLayout()
+        self.g_layout = QGridLayout()
+
         # определим элементы управления
         self.label = self.dialog.findChild(QLabel, 'label')
         self.table_bill = self.dialog.findChild(QTableWidget, 'table_bill')
@@ -51,6 +57,30 @@ class BankDocs(QWidget):
         self.btn_add.clicked.connect(self.insert_service)
         self.btn_changed.clicked.connect(self.edit_service)
         self.btn_delete.clicked.connect(self.dell_service)
+
+        # применим растягивание
+        self.h_layout_btn.addWidget(self.btn_add)
+        self.h_layout_btn.addWidget(self.btn_changed)
+        self.h_layout_btn.addWidget(self.btn_delete)
+
+        # добавим спайсер
+        self.h_layout_btn.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        
+        # вложим горизонтальные лэйауты в вертикальный
+        self.v_layout.addWidget(self.label)
+        self.v_layout.addWidget(self.table_bill)
+        self.v_layout.addLayout(self.h_layout_btn)
+
+        # вложим вертикальный в сетку
+        self.g_layout.addLayout(self.v_layout, 0, 0)
+        # применим сетку к окну
+        self.setLayout(self.g_layout)
+
+        # зададим размер окна
+        self.resize(1000, 480)
+
+        # заполним таблицу
+        self.filling_table()
 
         # замена имени колонки в форме
         self.table_bill.horizontalHeaderItem(2).setText('Действие')
