@@ -8,6 +8,7 @@ from classies.invoicing import Invoicing
 from classies.incoming_acts import IncomingActs
 from classies.budget import Budget
 from classies.show_bank_docs import ShowBankDocs
+from classies.declaration import Declaration
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -40,6 +41,7 @@ class Counter(QObject):
         self.journal_acts = self.window.findChild(
             QAction, 'journal_acts')
         self.report_bank_docs = self.window.findChild(QAction, 'report_bank_docs')
+        self.report_declaration = self.window.findChild(QAction, 'report_declaration')
 
 
 
@@ -53,6 +55,7 @@ class Counter(QObject):
         self.journal_invoicing.triggered.connect(self.read_invoicing)
         self.journal_acts.triggered.connect(self.read_acts)
         self.report_bank_docs.triggered.connect(self.read_bank_statament)
+        self.report_declaration.triggered.connect(self.read_declaration)
         self.window.show()
 
     # метод открытия окна с компаниями
@@ -110,13 +113,22 @@ class Counter(QObject):
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
-
+    
+    # метод открытия окна с выписками банка
     def read_bank_statament(self):
         self.wincom = ShowBankDocs()
         self.wincom.setWindowTitle('Выписки банка')
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
+    
+    # метод открытия окна для формирования декларации
+    def read_declaration(self):
+        self.windec = Declaration()
+        self.windec.setWindowTitle('Формирование декларации УСН 6%')
+        self.windec.setWindowModality(Qt.ApplicationModal)
+        self.windec.setWindowFlags(Qt.Window)
+        self.windec.show()
 
     # метод закрытия программы
     def exitapp(self):

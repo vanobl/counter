@@ -167,7 +167,7 @@ class BankDocs(QWidget):
             id_query = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row)
             result = id_query.first()
             if selector == 'dell':
-                id_query.delete()
+                conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).delete()
                 conn.commit()
                 self.filling_table()
             elif selector == 'edit':

@@ -51,6 +51,7 @@
      <string>Отчёты</string>
     </property>
     <addaction name="report_bank_docs"/>
+    <addaction name="report_declaration"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -104,6 +105,11 @@
   <action name="report_bank_docs">
    <property name="text">
     <string>Отчёт выписка банка</string>
+   </property>
+  </action>
+  <action name="report_declaration">
+   <property name="text">
+    <string>Декларация УСН 6%</string>
    </property>
   </action>
  </widget>

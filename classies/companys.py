@@ -73,6 +73,9 @@ class Companys(QWidget):
             self.win.edit_inn.setText(query_company.inn)
             self.win.edit_ogrn.setText(query_company.ogrn)
             self.win.edit_address.setText(query_company.adress)
+            self.win.edit_inspection.setText(query_company.inspection),
+            self.win.edit_okved.setText(query_company.okved),
+            self.win.edit_phone.setText(query_company.phone)
             self.win.label_id.setNum(query_company.id)
         elif selector == 'dell':
             list = self.list_company.selectedItems()
@@ -96,7 +99,10 @@ class Companys(QWidget):
             new_company = Company(self.win.edit_company.text(),
                                   self.win.edit_inn.text(),
                                   self.win.edit_ogrn.text(),
-                                  self.win.edit_address.text())
+                                  self.win.edit_address.text(),
+                                  self.win.edit_inspection.text(),
+                                  self.win.edit_okved.text(),
+                                  self.win.edit_phone.text())
             conn.add(new_company)
             conn.commit()
             self.win.close()
@@ -107,7 +113,10 @@ class Companys(QWidget):
             ).update({'namecompany': self.win.edit_company.text(),
                 'inn': self.win.edit_inn.text(),
                 'ogrn': self.win.edit_ogrn.text(),
-                'adress': self.win.edit_address.text()})
+                'adress': self.win.edit_address.text(),
+                'inspection': self.win.edit_inspection.text(),
+                'okved': self.win.edit_okved.text(),
+                'phone': self.win.edit_phone.text()})
             conn.commit()
             self.win.close()
             self.filling_list()
