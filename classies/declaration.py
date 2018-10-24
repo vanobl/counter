@@ -77,23 +77,14 @@ class Declaration(QWidget):
 
         # формируем список ИНН
         inn = []
-        for n in company_query.inn:
-            inn.append(n)
-            inn.append('')
-            inn.append('')
-
-        # заполняем ИНН
-        if len(company_query.inn) == 10:
-            worksheet.range('AK1').value = inn
-            worksheet.range(f'BO1').value = 0
-            worksheet.range(f'BR1').value = 0
-        elif len(company_query.inn) == 12:
-            worksheet.range(f'AK1').value = inn
+        worksheet.range('AK1').value = self.enter_empty_cell_for_summ(company_query.inn, inn, 12)
         
         # заполняем номер корректировки
-        worksheet.range(f'Y12').value = '0'
-        worksheet.range(f'AB12').value = '0'
-        worksheet.range(f'AE12').value = '1'
+        # worksheet.range(f'Y12').value = '0'
+        # worksheet.range(f'AB12').value = '0'
+        # worksheet.range(f'AE12').value = '1'
+        korr = []
+        worksheet.range(f'Y12').value = self.enter_empty_cell_for_summ(1, korr, 12)
 
         # заполняем налоговый период
         worksheet.range(f'BU12').value = '3'
@@ -110,11 +101,13 @@ class Declaration(QWidget):
 
         # заполняем налоговый орган
         nalog_org = []
-        for nal in company_query.inspection:
-            nalog_org.append(nal)
-            nalog_org.append('')
-            nalog_org.append('')
-        worksheet.range(f'AN14').value = nalog_org
+        # for nal in company_query.inspection:
+        #     nalog_org.append(nal)
+        #     nalog_org.append('')
+        #     nalog_org.append('')
+        # worksheet.range(f'AN14').value = nalog_org
+        print(company_query.inspection)
+        worksheet.range(f'AN14').value = self.enter_empty_cell_for_summ(company_query.inspection, nalog_org, 4)
 
         # заполняем по месту нахождения
         nah = ['2', '', '', '1', '', '', '0']
@@ -144,6 +137,7 @@ class Declaration(QWidget):
             datt.append('')
             datt.append('')
         worksheet.range(f'AE63').value = datt
+        worksheet2.range(f'BM59').value = time.strftime('%d.%m.%Y')
 
         # доходы
         worksheet3.range(f'CC15').value = '2'
@@ -164,43 +158,27 @@ class Declaration(QWidget):
         for i in bank_query_income_1:
             total_1 += round(i.summ_docs, 0)
         total_str_1 = []
-        for i in str(total_1):
-            total_str_1.append(i)
-            total_str_1.append('')
-            total_str_1.append('')
-        worksheet3.range(f'CC22').value = total_str_1
+        worksheet3.range(f'CC22').value = self.enter_empty_cell_for_summ(total_1, total_str_1, 12)
 
         # заполняем полугодие
         for i in bank_query_income_2:
             total_2 += round(i.summ_docs, 0)
         total_str_2 = []
-        for i in str(total_2):
-            total_str_2.append(i)
-            total_str_2.append('')
-            total_str_2.append('')
-        worksheet3.range(f'CC24').value = total_str_2
+        worksheet3.range(f'CC24').value = self.enter_empty_cell_for_summ(total_2, total_str_2, 12)
 
         # заполняем 9 месяцев
         for i in bank_query_income_3:
             total_3 += round(i.summ_docs, 0)
         total_str_3 = []
-        for i in str(total_3):
-            total_str_3.append(i)
-            total_str_3.append('')
-            total_str_3.append('')
-        worksheet3.range(f'CC26').value = total_str_3
+        worksheet3.range(f'CC26').value = self.enter_empty_cell_for_summ(total_3, total_str_3, 12)
 
         # заполняем год
         for i in bank_query_income_4:
             total_4 += round(i.summ_docs, 0)
         total_str_4 = []
-        for i in str(total_4):
-            total_str_4.append(i)
-            total_str_4.append('')
-            total_str_4.append('')
-        worksheet3.range(f'CC28').value = total_str_4
+        worksheet3.range(f'CC28').value = self.enter_empty_cell_for_summ(total_4, total_str_4, 12)
 
-        # заполним ставик налога
+        # заполним ставки налога
         worksheet3.range(f'CC30').value = '6'
         worksheet3.range(f'CI30').value = '0'
         worksheet3.range(f'CC32').value = '6'
@@ -213,35 +191,19 @@ class Declaration(QWidget):
         # заполним суммы налога
         sum_tax_1 = round(float(total_1) * 0.06, 0)
         sum_tax_str_1 = []
-        for i in str(sum_tax_1):
-            sum_tax_str_1.append(i)
-            sum_tax_str_1.append('')
-            sum_tax_str_1.append('')
-        worksheet3.range(f'CC39').value = sum_tax_str_1
+        worksheet3.range(f'CC39').value = self.enter_empty_cell_for_summ(sum_tax_1, sum_tax_str_1, 12)
 
         sum_tax_2 = round(float(total_2) * 0.06, 0)
         sum_tax_str_2 = []
-        for i in str(sum_tax_2):
-            sum_tax_str_2.append(i)
-            sum_tax_str_2.append('')
-            sum_tax_str_2.append('')
-        worksheet3.range(f'CC42').value = sum_tax_str_2
+        worksheet3.range(f'CC42').value = self.enter_empty_cell_for_summ(sum_tax_2, sum_tax_str_2, 12)
 
         sum_tax_3 = round(float(total_3) * 0.06, 0)
         sum_tax_str_3 = []
-        for i in str(sum_tax_3):
-            sum_tax_str_3.append(i)
-            sum_tax_str_3.append('')
-            sum_tax_str_3.append('')
-        worksheet3.range(f'CC45').value = sum_tax_str_3
+        worksheet3.range(f'CC45').value = self.enter_empty_cell_for_summ(sum_tax_3, sum_tax_str_3, 12)
 
         sum_tax_4 = round(float(total_4) * 0.06, 0)
         sum_tax_str_4 = []
-        for i in str(sum_tax_4):
-            sum_tax_str_4.append(i)
-            sum_tax_str_4.append('')
-            sum_tax_str_4.append('')
-        worksheet3.range(f'CC48').value = sum_tax_str_4
+        worksheet3.range(f'CC48').value = self.enter_empty_cell_for_summ(sum_tax_4, sum_tax_str_4, 12)
 
         # заполним страховые взносы
         budget_001 = conn.query(table_budget).filter_by(name_byudget = 'Страховые взносы на обязательное пенсионное страхование').first()
@@ -270,101 +232,101 @@ class Declaration(QWidget):
         filter(table_bank.date_docs <= datetime.strptime(f'{str(self.date_year.date().year())}.12.31', '%Y.%m.%d').date()).\
         filter(table_bank.action_docs == 'Расход').\
         filter((table_bank.byudgetpay_id == budget_001.id) | (table_bank.byudgetpay_id == budget_002.id)).all()
-
-        # print(bank_query_contribution_1)
-
+        # строка 140
         sum_contrib_1 = 0
         sum_contrib_str_1 = []
         for i in bank_query_contribution_1:
             sum_contrib_1 += round(i.summ_docs, 0)
-        for i in str(sum_contrib_1):
-            sum_contrib_str_1.append(i)
-            sum_contrib_str_1.append('')
-            sum_contrib_str_1.append('')
-        worksheet3.range(f'CC52').value = sum_contrib_str_1
 
+        if sum_contrib_1 > sum_tax_1:
+            sum_contrib_1 = sum_tax_1
+
+        worksheet3.range(f'CC52').value = self.enter_empty_cell_for_summ(sum_contrib_1, sum_contrib_str_1, 12)
+
+        # строка 141
         sum_contrib_2 = 0
         sum_contrib_str_2 = []
         for i in bank_query_contribution_2:
             sum_contrib_2 += round(i.summ_docs, 0)
-        for i in str(sum_contrib_2):
-            sum_contrib_str_2.append(i)
-            sum_contrib_str_2.append('')
-            sum_contrib_str_2.append('')
-        worksheet3.range(f'CC55').value = sum_contrib_str_2
 
+        if sum_contrib_2 > sum_tax_2:
+            sum_contrib_2 = sum_tax_2
+
+        worksheet3.range(f'CC55').value = self.enter_empty_cell_for_summ(sum_contrib_2, sum_contrib_str_2, 12)
+
+        # строка 142
         sum_contrib_3 = 0
         sum_contrib_str_3 = []
         for i in bank_query_contribution_3:
             sum_contrib_3 += round(i.summ_docs, 0)
-        for i in str(sum_contrib_3):
-            sum_contrib_str_3.append(i)
-            sum_contrib_str_3.append('')
-            sum_contrib_str_3.append('')
-        worksheet3.range(f'CC58').value = sum_contrib_str_3
+        
+        if sum_contrib_3 > sum_tax_3:
+            sum_contrib_3 = sum_tax_3
+            
+        worksheet3.range(f'CC58').value = self.enter_empty_cell_for_summ(sum_contrib_3, sum_contrib_str_3, 12)
 
+        # строка 143
         sum_contrib_4 = 0
         sum_contrib_str_4 = []
         for i in bank_query_contribution_4:
             sum_contrib_4 += round(i.summ_docs, 0)
-        for i in str(sum_contrib_4):
-            sum_contrib_str_4.append(i)
-            sum_contrib_str_4.append('')
-            sum_contrib_str_4.append('')
-        worksheet3.range(f'CC61').value = sum_contrib_str_4
+
+        if sum_contrib_4 > sum_tax_4:
+            sum_contrib_4 = sum_tax_4
+
+        worksheet3.range(f'CC61').value = self.enter_empty_cell_for_summ(sum_contrib_4, sum_contrib_str_4, 12)
 
         # заполним авансовые платежи
         sum_advance_1 = float(sum_tax_1) - float(sum_contrib_1)
-        sum_advance_2 = float(sum_tax_2) - float(sum_contrib_2)
-        print(sum_advance_2)
-        sum_advance_3 = float(sum_tax_3) - float(sum_contrib_3)
-        print(sum_advance_3)
-        sum_advance_4 = float(sum_tax_4) - float(sum_contrib_4)
-        print(sum_advance_4)
+        sum_advance_2 = float(sum_tax_2) - float(sum_contrib_2) - sum_advance_1
+        sum_advance_3 = float(sum_tax_3) - float(sum_contrib_3) - sum_advance_1 - sum_advance_2
+        sum_advance_4 = float(sum_tax_4) - float(sum_contrib_4) - sum_advance_1 - sum_advance_2 - sum_advance_3
 
         sum_advance_str_1 = []
         sum_advance_str_2 = []
         sum_advance_str_3 = []
         sum_advance_str_4 = []
 
-        if sum_advance_1 > 0:
-            for i in str(sum_advance_1):
-                sum_advance_str_1.append(i)
-                sum_advance_str_1.append('')
-                sum_advance_str_1.append('')
-        elif sum_advance_1 < 0:
-            sum_advance_str_1 = ['0']
-        worksheet2.range(f'BU20').value = sum_advance_str_1
+        # заполним ОКТМО на странице
+        oktmo_str = []
+        worksheet2.range(f'BU17').value = self.enter_empty_cell_for_summ(company_query.oktmo, oktmo_str, 11)
+        worksheet2.range(f'BU23').value = self.enter_empty_cell_for_summ(0, oktmo_str, 11)
+        worksheet2.range(f'BU33').value = self.enter_empty_cell_for_summ(0, oktmo_str, 11)
+        worksheet2.range(f'BU42').value = self.enter_empty_cell_for_summ(0, oktmo_str, 11)
 
-        if sum_advance_2 > 0:
-            for i in str(sum_advance_2):
-                sum_advance_str_2.append(i)
-                sum_advance_str_2.append('')
-                sum_advance_str_2.append('')
-        elif sum_advance_2 < 0:
-            sum_advance_str_2 = ['0']
-            # for i in str(sum_advance_2 * -1):
-            #     sum_advance_str_2.append(i)
-            #     sum_advance_str_2.append('')
-            #     sum_advance_str_2.append('')
-        worksheet2.range(f'BU30').value = sum_advance_str_2
+        # заполним авансовые платежи
+        worksheet2.range(f'BU20').value = self.enter_empty_cell_for_summ(sum_advance_1, sum_advance_str_1, 12)
 
-        if sum_advance_3 > 0:
-            for i in str(sum_advance_3):
-                sum_advance_str_3.append(i)
-                sum_advance_str_3.append('')
-                sum_advance_str_3.append('')
-        elif sum_advance_3 < 0:
-            sum_advance_str_3 = ['0']
-        worksheet2.range(f'BU36').value = sum_advance_str_3
+        print(f'sum_advance_2: {sum_advance_2}')
+        worksheet2.range(f'BU26').value = self.enter_empty_cell_for_summ(sum_advance_2, sum_advance_str_2, 12)
+        worksheet2.range(f'BU30').value = self.enter_empty_cell_for_summ(0, sum_advance_str_2, 12)
 
-        if sum_advance_4 > 0:
-            for i in str(sum_advance_4):
-                sum_advance_str_4.append(i)
-                sum_advance_str_4.append('')
-                sum_advance_str_4.append('')
-        elif sum_advance_4 < 0:
-            sum_advance_str_4 = ['0']
-        worksheet2.range(f'BU45').value = sum_advance_str_4
+        worksheet2.range(f'BU36').value = self.enter_empty_cell_for_summ(sum_advance_3, sum_advance_str_3, 12)
+        worksheet2.range(f'BU39').value = self.enter_empty_cell_for_summ(0, sum_advance_str_3, 12)
+
+        worksheet2.range(f'BU45').value = self.enter_empty_cell_for_summ(sum_advance_4, sum_advance_str_4, 12)
+        worksheet2.range(f'BU49').value = self.enter_empty_cell_for_summ(0, sum_advance_str_4, 12)
 
         workbook.save(path_full)
+        print('Заполнение окончено')
+    
+    def enter_empty_cell_for_summ(self, mysum, my_list, num_cell):
+        if mysum:
+            for i in str(int(mysum)):
+                my_list.append(i)
+                my_list.append('')
+                my_list.append('')
+            
+            empty_cell = num_cell - len(str(int(mysum)))
+            for i in range(empty_cell):
+                my_list.append('-')
+                my_list.append('')
+                my_list.append('')
+        elif not mysum:
+            my_list.clear()
+            for i in range(num_cell):
+                my_list.append('-')
+                my_list.append('')
+                my_list.append('')
+        
+        return my_list
