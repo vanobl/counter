@@ -12,6 +12,7 @@ from classies.comunicate import Communicate
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QPushButton, QLineEdit, QWidget, QComboBox, QDateEdit, QTextEdit, QCheckBox, QLabel
 from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout, QSpacerItem, QSizePolicy
+from PySide2.QtWidgets import QMessageBox
 from PySide2.QtCore import QFile, QDate
 
 from py3o.template import Template
@@ -78,13 +79,17 @@ class Declaration(QWidget):
         # формируем список ИНН
         inn = []
         worksheet.range('AK1').value = self.enter_empty_cell_for_summ(company_query.inn, inn, 12)
+
+        # заполняем КПП
+        kpp_list = []
+        worksheet.range('AK4').value = self.enter_empty_cell_for_summ(company_query.kpp, kpp_list, 9)
         
         # заполняем номер корректировки
         # worksheet.range(f'Y12').value = '0'
         # worksheet.range(f'AB12').value = '0'
         # worksheet.range(f'AE12').value = '1'
         korr = []
-        worksheet.range(f'Y12').value = self.enter_empty_cell_for_summ(1, korr, 12)
+        worksheet.range(f'Y12').value = self.enter_empty_cell_for_summ(1, korr, 3)
 
         # заполняем налоговый период
         worksheet.range(f'BU12').value = '3'
@@ -101,26 +106,37 @@ class Declaration(QWidget):
 
         # заполняем налоговый орган
         nalog_org = []
-        # for nal in company_query.inspection:
-        #     nalog_org.append(nal)
-        #     nalog_org.append('')
-        #     nalog_org.append('')
-        # worksheet.range(f'AN14').value = nalog_org
-        print(company_query.inspection)
-        worksheet.range(f'AN14').value = self.enter_empty_cell_for_summ(company_query.inspection, nalog_org, 4)
+        for nal in company_query.inspection:
+            nalog_org.append(nal)
+            nalog_org.append('')
+            nalog_org.append('')
+        worksheet.range(f'AN14').value = nalog_org
 
         # заполняем по месту нахождения
         nah = ['2', '', '', '1', '', '', '0']
-        worksheet.range(f'DH14').value = nalog_org
+        worksheet.range(f'DH14').value = nah
 
         # заполняем наименование компании
         if len(company_query.namecompany) <= 40:
             name_company = []
-            for name in company_query.namecompany:
+            for name in str(company_query.namecompany).upper():
                 name_company.append(name)
                 name_company.append('')
                 name_company.append('')
             worksheet.range(f'A16').value = name_company
+            worksheet.range(f'A18').value = self.enter_empty_cell_for_summ(0, korr, 40)
+            worksheet.range(f'A20').value = self.enter_empty_cell_for_summ(0, korr, 40)
+            worksheet.range(f'A22').value = self.enter_empty_cell_for_summ(0, korr, 40)
+        
+        # заполняем реорганизацию
+        worksheet.range(f'V26').value = '-'
+        reorg = []
+        worksheet.range(f'BI26').value = self.enter_empty_cell_for_summ(0, reorg, 10)
+        worksheet.range(f'CP26').value = self.enter_empty_cell_for_summ(0, reorg, 9)
+
+        # заполним количество страниц
+        stranici = ['3', '', '', '-', '', '', '-']
+        worksheet.range(f'G30').value = stranici
         
         # заполняем ОКВЭД
         okved = []
@@ -129,6 +145,10 @@ class Declaration(QWidget):
             okved.append('')
             okved.append('')
         worksheet.range(f'BI24').value = okved
+
+        # заполняем телефонный номер
+        phone = []
+        worksheet.range(f'AE28').value = self.enter_empty_cell_for_summ(company_query.phone, phone, 20)
 
         # заполняем дату декларации
         datt = []
@@ -148,7 +168,7 @@ class Declaration(QWidget):
         bank_query_income_2 = conn.query(table_bank).filter(table_bank.date_docs >= datetime.strptime(f'{str(self.date_year.date().year())}.1.1', '%Y.%m.%d').date()).filter(table_bank.date_docs <= datetime.strptime(f'{str(self.date_year.date().year())}.6.30', '%Y.%m.%d').date()).filter(table_bank.action_docs == 'Приход').all()
         bank_query_income_3 = conn.query(table_bank).filter(table_bank.date_docs >= datetime.strptime(f'{str(self.date_year.date().year())}.1.1', '%Y.%m.%d').date()).filter(table_bank.date_docs <= datetime.strptime(f'{str(self.date_year.date().year())}.9.30', '%Y.%m.%d').date()).filter(table_bank.action_docs == 'Приход').all()
         bank_query_income_4 = conn.query(table_bank).filter(table_bank.date_docs >= datetime.strptime(f'{str(self.date_year.date().year())}.1.1', '%Y.%m.%d').date()).filter(table_bank.date_docs <= datetime.strptime(f'{str(self.date_year.date().year())}.12.31', '%Y.%m.%d').date()).filter(table_bank.action_docs == 'Приход').all()
-        # print(bank_query_income_4)
+        
         total_1 = 0
         total_2 = 0
         total_3 = 0
@@ -297,7 +317,6 @@ class Declaration(QWidget):
         # заполним авансовые платежи
         worksheet2.range(f'BU20').value = self.enter_empty_cell_for_summ(sum_advance_1, sum_advance_str_1, 12)
 
-        print(f'sum_advance_2: {sum_advance_2}')
         worksheet2.range(f'BU26').value = self.enter_empty_cell_for_summ(sum_advance_2, sum_advance_str_2, 12)
         worksheet2.range(f'BU30').value = self.enter_empty_cell_for_summ(0, sum_advance_str_2, 12)
 
@@ -308,7 +327,13 @@ class Declaration(QWidget):
         worksheet2.range(f'BU49').value = self.enter_empty_cell_for_summ(0, sum_advance_str_4, 12)
 
         workbook.save(path_full)
-        print('Заполнение окончено')
+        infoBox = QMessageBox()
+        infoBox.setIcon(QMessageBox.Information)
+        infoBox.setWindowTitle('Сообщение')
+        infoBox.setText('Формирование отчёта окончено.')
+        infoBox.setStandardButtons(QMessageBox.Ok)
+        infoBox.setDefaultButton(QMessageBox.Ok)
+        infoBox.exec_()
     
     def enter_empty_cell_for_summ(self, mysum, my_list, num_cell):
         if mysum:

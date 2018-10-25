@@ -77,6 +77,7 @@ class Companys(QWidget):
             self.win.edit_okved.setText(query_company.okved)
             self.win.edit_phone.setText(query_company.phone)
             self.win.edit_oktmo.setText(query_company.oktmo)
+            self.win.edit_kpp.setText(query_company.kpp)
             self.win.label_id.setNum(query_company.id)
         elif selector == 'dell':
             list = self.list_company.selectedItems()
@@ -104,7 +105,8 @@ class Companys(QWidget):
                                   self.win.edit_inspection.text(),
                                   self.win.edit_okved.text(),
                                   self.win.edit_phone.text(),
-                                  self.win.edit_oktmo.text())
+                                  self.win.edit_oktmo.text(),
+                                  self.win.edit_kpp.text())
             conn.add(new_company)
             conn.commit()
             self.win.close()
@@ -119,7 +121,8 @@ class Companys(QWidget):
                 'inspection': self.win.edit_inspection.text(),
                 'okved': self.win.edit_okved.text(),
                 'phone': self.win.edit_phone.text(),
-                'oktmo': self.win.edit_oktmo.text()})
+                'oktmo': self.win.edit_oktmo.text(),
+                'kpp': self.win.edit_kpp.text()})
             conn.commit()
             self.win.close()
             self.filling_list()
