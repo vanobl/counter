@@ -20,14 +20,14 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="action_exit"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -50,6 +50,8 @@
     <property name="title">
      <string>Отчёты</string>
     </property>
+    <addaction name="report_bank_docs"/>
+    <addaction name="report_declaration"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -57,7 +59,7 @@
    <addaction name="menu_4"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action">
+  <action name="action_exit">
    <property name="text">
     <string>Выйти</string>
    </property>
@@ -98,6 +100,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="report_bank_docs">
+   <property name="text">
+    <string>Отчёт выписка банка</string>
+   </property>
+  </action>
+  <action name="report_declaration">
+   <property name="text">
+    <string>Декларация УСН 6%</string>
    </property>
   </action>
  </widget>

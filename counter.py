@@ -7,6 +7,8 @@ from classies.bank_docs import BankDocs
 from classies.invoicing import Invoicing
 from classies.incoming_acts import IncomingActs
 from classies.budget import Budget
+from classies.show_bank_docs import ShowBankDocs
+from classies.declaration import Declaration
 
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QAction
@@ -26,6 +28,7 @@ class Counter(QObject):
         self.ui_file.close()
 
         # определим компоненты управления
+        self.action_exit = self.window.findChild(QAction, 'action_exit')
         self.select_company = self.window.findChild(QAction, 'select_company')
         self.select_counterparties = self.window.findChild(
             QAction, 'select_counterparties')
@@ -37,9 +40,13 @@ class Counter(QObject):
             QAction, 'journal_invoicing')
         self.journal_acts = self.window.findChild(
             QAction, 'journal_acts')
+        self.report_bank_docs = self.window.findChild(QAction, 'report_bank_docs')
+        self.report_declaration = self.window.findChild(QAction, 'report_declaration')
+
 
 
         # назначим действия для объектов
+        self.action_exit.triggered.connect(self.exitapp)
         self.select_company.triggered.connect(self.read_company)
         self.select_counterparties.triggered.connect(self.read_counterparties)
         self.select_service.triggered.connect(self.read_service)
@@ -47,6 +54,8 @@ class Counter(QObject):
         self.journal_income_consumption.triggered.connect(self.read_bank_docs)
         self.journal_invoicing.triggered.connect(self.read_invoicing)
         self.journal_acts.triggered.connect(self.read_acts)
+        self.report_bank_docs.triggered.connect(self.read_bank_statament)
+        self.report_declaration.triggered.connect(self.read_declaration)
         self.window.show()
 
     # метод открытия окна с компаниями
@@ -104,4 +113,23 @@ class Counter(QObject):
         self.wincom.setWindowModality(Qt.ApplicationModal)
         self.wincom.setWindowFlags(Qt.Window)
         self.wincom.show()
+    
+    # метод открытия окна с выписками банка
+    def read_bank_statament(self):
+        self.wincom = ShowBankDocs()
+        self.wincom.setWindowTitle('Выписки банка')
+        self.wincom.setWindowModality(Qt.ApplicationModal)
+        self.wincom.setWindowFlags(Qt.Window)
+        self.wincom.show()
+    
+    # метод открытия окна для формирования декларации
+    def read_declaration(self):
+        self.windec = Declaration()
+        self.windec.setWindowTitle('Формирование декларации УСН 6%')
+        self.windec.setWindowModality(Qt.ApplicationModal)
+        self.windec.setWindowFlags(Qt.Window)
+        self.windec.show()
 
+    # метод закрытия программы
+    def exitapp(self):
+        self.window.close()

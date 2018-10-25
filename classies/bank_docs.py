@@ -164,7 +164,8 @@ class BankDocs(QWidget):
             index_row = self.table_bill.row(selected_row)
             self.id_selected_row = self.id[index_row]
             # формируем запрос в таблицу
-            result = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).first()
+            id_query = conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row)
+            result = id_query.first()
             if selector == 'dell':
                 conn.query(BankDocsRev).filter(BankDocsRev.id == self.id_selected_row).delete()
                 conn.commit()
@@ -246,7 +247,7 @@ class BankDocs(QWidget):
                 date_docs=self.win.date_edit.date().toPython(),
                 summ_docs=float(self.win.summ_edit.text()),
                 action_docs=self.win.cmbox_action.currentText(),
-                comment_docs=self.win.comment_edit.text(),
+                comment_docs=self.win.comment_edit.toPlainText(),
                 counterparties_id=cont_id.id,
                 byudgetpay_id=byudget_text)
             conn.add(new_doc)
@@ -259,7 +260,7 @@ class BankDocs(QWidget):
                 'date_docs': self.win.date_edit.date().toPython(),
                 'summ_docs': float(self.win.summ_edit.text()),
                 'action_docs': self.win.cmbox_action.currentText(),
-                'comment_docs': self.win.comment_edit.text(),
+                'comment_docs': self.win.comment_edit.toPlainText(),
                 'counterparties_id': cont_id.id,
                 'byudgetpay_id': byudget_text})
             conn.commit()

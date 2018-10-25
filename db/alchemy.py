@@ -25,16 +25,25 @@ class Company(CBase):
     inn = Column(String, nullable=False)
     ogrn = Column(String, nullable=False)
     adress = Column(String, nullable=False)
+    inspection = Column(String)
+    okved = Column(String)
+    phone = Column(String)
+    oktmo = Column(String)
+    kpp = Column(String)
 
-    def __init__(self, namecompany, inn, ogrn, adress):
+    def __init__(self, namecompany, inn, ogrn, adress, inspection, okved, phone, oktmo, kpp):
         self.namecompany = namecompany
         self.inn = inn
         self.ogrn = ogrn
         self.adress = adress
+        self.inspection = inspection
+        self.okved = okved
+        self.phone = phone
+        self.oktmo = oktmo
+        self.kpp = kpp
 
     def __repr__(self):
-        return 'Company: {}, INN: {}, OGRN: {}, ADDRESS: {}'.format(
-            self.namecompany, self.inn, self.ogrn, self.adress)
+        return f'Company: {self.namecompany}, INN: {self.inn}, OGRN: {self.ogrn}, ADDRESS: {self.adress}, INSPECTION {self.inspection}, OKVED {self.okved}, PHONE {self.phone}, OKTMO {self.oktmo}, KPP {self.kpp}'
 
 #определим класс таблицы контрагентов
 class Counterparties(CBase):

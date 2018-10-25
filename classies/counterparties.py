@@ -96,7 +96,6 @@ class Counterpartie(QWidget):
     # метод работы с компаниями
     def add_upt_dell(self):
         if self.win.action == 'add':
-            print(self.win.action)
             new_company = Counterparties(
                 self.win.edit_company.text(),
                 self.win.edit_inn.text(),
